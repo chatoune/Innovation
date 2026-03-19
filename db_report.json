@@ -1,0 +1,376 @@
+{
+  "ok": true,
+  "generated_at": "2026-03-10T13:21:11",
+  "database": {
+    "sqlite_version": "3.49.1",
+    "encoding": "UTF-8",
+    "foreign_keys": 0,
+    "journal_mode": "delete",
+    "synchronous": 2,
+    "temp_store": 0,
+    "cache_size": -2000,
+    "page_size": 4096,
+    "auto_vacuum": 0,
+    "application_id": 0,
+    "user_version": 0
+  },
+  "schema": {
+    "tables": [
+      {
+        "name": "CDV_ALL",
+        "columns": [
+          {
+            "name": "Statut",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Commande",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Date",
+            "type": "TIMESTAMP",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Tiers",
+            "type": "INTEGER",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Raison sociale",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Taxe",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Tiers fact",
+            "type": "INTEGER",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Raison sociale fact",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Fam",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "SFam",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Article",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Réf client",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Désignation",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Qté",
+            "type": "INTEGER",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Prix net",
+            "type": "REAL",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Prix net Dev",
+            "type": "REAL",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Devise",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Date exp",
+            "type": "TIMESTAMP",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Livraison dem",
+            "type": "TIMESTAMP",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Rep1",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Rep2",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Livraison",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Date livraison",
+            "type": "TIMESTAMP",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Facture",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Date facture",
+            "type": "TIMESTAMP",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "source_table",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Colonne1",
+            "type": "REAL",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          }
+        ],
+        "primary_key_columns": [],
+        "foreign_keys": [],
+        "indexes": [],
+        "row_count": 112367
+      },
+      {
+        "name": "PAs",
+        "columns": [
+          {
+            "name": "ARTICLE",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "DEISGNATION",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "DES_FOURN",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "STATUT",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "CATEGORIE",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "FAM",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "PRIX_VE",
+            "type": "REAL",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "PRIX_MINI",
+            "type": "REAL",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "PRIX_DATE",
+            "type": "TIMESTAMP",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "FOURN",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "DRN_FICHE_TRF",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "DATE_TRF",
+            "type": "TIMESTAMP",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "PRIX_TFR",
+            "type": "REAL",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "DEVISE",
+            "type": "TEXT",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "STD_DATE",
+            "type": "TIMESTAMP",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "COUT_STD",
+            "type": "REAL",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "Unnamed: 16",
+            "type": "REAL",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "PV MAJ",
+            "type": "INTEGER",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "PA MAJ",
+            "type": "REAL",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "% hausse PA",
+            "type": "REAL",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          },
+          {
+            "name": "% Hausse PV",
+            "type": "REAL",
+            "nullable": true,
+            "default": null,
+            "primary_key": 0
+          }
+        ],
+        "primary_key_columns": [],
+        "foreign_keys": [],
+        "indexes": [],
+        "row_count": 1265
+      }
+    ],
+    "views": []
+  }
+}
