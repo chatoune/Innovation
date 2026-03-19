@@ -1,33 +1,30 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Optional
 
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QMainWindow,
-    QFileDialog,
-    QMessageBox,
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
+    QPushButton,
     QLabel,
     QListWidget,
-    QPushButton,
     QTableWidget,
     QTableWidgetItem,
-    QSplitter,
+    QFileDialog,
+    QMessageBox,
     QTabWidget,
 )
 
-from app.settings import AppSettings
+from app.config_db import ConfigDB
 from app.database_manager import DatabaseManager
 from app.database_reporter import DatabaseReporter, ReportOptions
-from app.config_db import ConfigDB
-
+from app.settings import AppSettings
 from services.cdv_service import CDVService
-from ui.cdv_panel import CDVPanel
-
 from services.phc_service import PHCService
+from ui.cdv_panel import CDVPanel
 from ui.phc_panel import PHCPanel
 
 
@@ -41,7 +38,7 @@ class MainWindow(QMainWindow):
 
         # Services
         self._cdv_service = CDVService(self._db_manager)
-        self._phc_service = PHCService(self._db_manager)  # <-- pas d'arg config_db_path
+        self._phc_service = PHCService(self._db_manager)
 
         # UI
         self.setWindowTitle("Innovation - Exploitation SQLite")
@@ -66,9 +63,6 @@ class MainWindow(QMainWindow):
         # Charger DB DATA depuis settings
         self._load_database_from_settings()
 
-        # Charger DB CONFIG (DB2) depuis settings
-        self._load_config_db_from_settings()
-
         # Refresh
         self._refresh_explorer_tables()
         self._cdv_panel.reload_all()
@@ -85,16 +79,8 @@ class MainWindow(QMainWindow):
         clear_db_action = file_menu.addAction("Effacer la base DATA")
         clear_db_action.triggered.connect(self._clear_database_file)
 
-        file_menu.addSeparator()
-
-        choose_cfg_action = file_menu.addAction("Choisir une base CONFIG (DB2)...")
-        choose_cfg_action.triggered.connect(self._choose_config_db)
-
-        init_cfg_action = file_menu.addAction("Initialiser la base CONFIG (DB2)")
-        init_cfg_action.triggered.connect(self._init_config_db)
-
-        clear_cfg_action = file_menu.addAction("Effacer la base CONFIG (DB2)")
-        clear_cfg_action.triggered.connect(self._clear_config_db)
+        init_cfg_action = file_menu.addAction("Initialiser la table de configuration PHC")
+        init_cfg_action.triggered.connect(self._init_config_in_data_db)
 
         file_menu.addSeparator()
 
@@ -114,6 +100,7 @@ class MainWindow(QMainWindow):
             return
         try:
             self._db_manager.configure_sqlite_file(db_path)
+            ConfigDB(db_path).init()
             self.statusBar().showMessage(f"Base DATA: {db_path}")
         except Exception:
             self._db_manager.clear()
@@ -140,6 +127,7 @@ class MainWindow(QMainWindow):
 
         try:
             self._db_manager.configure_sqlite_file(selected_path)
+            ConfigDB(selected_path).init()
         except Exception as e:
             QMessageBox.critical(self, "Erreur configuration", str(e))
             return
@@ -157,70 +145,23 @@ class MainWindow(QMainWindow):
         self._cdv_panel.reload_all()
         self._phc_panel.reload_all()
 
-    # ---------- CONFIG DB (DB2) ----------
-    def _load_config_db_from_settings(self) -> None:
-        cfg = self._settings.get_config_db_path()
-        if cfg is None:
-            return
-        try:
-            # crée/init le schéma si nécessaire
-            ConfigDB(cfg).init()
-            # connecte le service à la DB2
-            if hasattr(self._phc_service, "set_config_db_path"):
-                self._phc_service.set_config_db_path(cfg)  # type: ignore[attr-defined]
-            self.statusBar().showMessage(f"Base CONFIG: {cfg}")
-        except Exception:
-            pass
-
-    def _choose_config_db(self) -> None:
-        current = self._settings.get_config_db_path()
-        start_dir = str(current.parent) if current is not None else str(Path.home())
-
-        selected_file, _ = QFileDialog.getSaveFileName(
-            self,
-            "Choisir/Créer une base CONFIG (DB2)",
-            str(Path(start_dir) / "phc_config.db"),
-            "Bases SQLite (*.db *.sqlite *.sqlite3);;Tous les fichiers (*)",
-        )
-        if not selected_file:
+    def _init_config_in_data_db(self) -> None:
+        db_path = self._db_manager.db_path
+        if db_path is None:
+            QMessageBox.information(self, "Configuration PHC", "Choisis d'abord une base DATA.")
             return
 
-        cfg_path = Path(selected_file)
-        self._settings.set_config_db_path(cfg_path)
-
         try:
-            ConfigDB(cfg_path).init()
-            if hasattr(self._phc_service, "set_config_db_path"):
-                self._phc_service.set_config_db_path(cfg_path)  # type: ignore[attr-defined]
+            ConfigDB(db_path).init()
+            QMessageBox.information(
+                self,
+                "Configuration PHC",
+                f"Table de configuration PHC initialisée dans la base DATA : {db_path}",
+            )
         except Exception as e:
-            QMessageBox.critical(self, "CONFIG", str(e))
+            QMessageBox.critical(self, "Configuration PHC", str(e))
             return
 
-        self.statusBar().showMessage(f"Base CONFIG: {cfg_path}")
-        self._phc_panel.reload_all()
-
-    def _init_config_db(self) -> None:
-        cfg = self._settings.get_config_db_path()
-        if cfg is None:
-            QMessageBox.information(self, "CONFIG", "Choisis d'abord une base CONFIG (DB2).")
-            return
-
-        try:
-            ConfigDB(cfg).init()
-            if hasattr(self._phc_service, "set_config_db_path"):
-                self._phc_service.set_config_db_path(cfg)  # type: ignore[attr-defined]
-            QMessageBox.information(self, "CONFIG", f"Base CONFIG initialisée : {cfg}")
-        except Exception as e:
-            QMessageBox.critical(self, "CONFIG", str(e))
-            return
-
-        self._phc_panel.reload_all()
-
-    def _clear_config_db(self) -> None:
-        self._settings.clear_config_db_path()
-        if hasattr(self._phc_service, "set_config_db_path"):
-            self._phc_service.set_config_db_path(None)  # type: ignore[attr-defined]
-        self.statusBar().showMessage("Base CONFIG effacée")
         self._phc_panel.reload_all()
 
     # ---------- Rapport sans données ----------
@@ -259,96 +200,72 @@ class MainWindow(QMainWindow):
         self._tables_list = QListWidget()
         self._tables_list.itemSelectionChanged.connect(self._on_table_selection_changed)
 
-        self._columns_table = QTableWidget(0, 5)
-        self._columns_table.setHorizontalHeaderLabels(["Nom", "Type", "Nullable", "PK", "Default"])
-        self._columns_table.setEditTriggers(QTableWidget.NoEditTriggers)
-
-        self._preview_table = QTableWidget(0, 0)
-        self._preview_table.setEditTriggers(QTableWidget.NoEditTriggers)
-
-        self._refresh_tables_btn = QPushButton("Rafraîchir")
+        self._refresh_tables_btn = QPushButton("Rafraîchir la liste")
         self._refresh_tables_btn.clicked.connect(self._refresh_explorer_tables)
 
-        left = QWidget()
-        llo = QVBoxLayout(left)
-        header = QHBoxLayout()
-        header.addWidget(QLabel("Tables"))
-        header.addStretch()
-        header.addWidget(self._refresh_tables_btn)
-        llo.addLayout(header)
-        llo.addWidget(self._tables_list, stretch=1)
+        self._columns_table = QTableWidget(0, 5)
+        self._columns_table.setHorizontalHeaderLabels(["Nom", "Type", "Nullable", "PK", "Default"])
 
-        right = QWidget()
-        rlo = QVBoxLayout(right)
-        rlo.addWidget(QLabel("Colonnes"))
-        rlo.addWidget(self._columns_table, stretch=1)
-        rlo.addWidget(QLabel("Aperçu (LIMIT 50)"))
-        rlo.addWidget(self._preview_table, stretch=1)
+        self._preview_table = QTableWidget(0, 0)
 
-        split = QSplitter(Qt.Horizontal)
-        split.addWidget(left)
-        split.addWidget(right)
-        split.setSizes([300, 1000])
+        left = QVBoxLayout()
+        left.addWidget(self._refresh_tables_btn)
+        left.addWidget(self._tables_list)
 
-        tab = QWidget()
-        root = QVBoxLayout(tab)
-        root.addWidget(self._expl_status)
-        root.addWidget(split, stretch=1)
-        return tab
+        right = QVBoxLayout()
+        right.addWidget(self._expl_status)
+        right.addWidget(QLabel("Colonnes"))
+        right.addWidget(self._columns_table)
+        right.addWidget(QLabel("Aperçu"))
+        right.addWidget(self._preview_table)
+
+        root = QWidget()
+        layout = QHBoxLayout(root)
+        layout.addLayout(left, 1)
+        layout.addLayout(right, 3)
+        return root
 
     def _refresh_explorer_tables(self) -> None:
-        self._tables_list.blockSignals(True)
-        try:
-            self._tables_list.clear()
-            ok, msg = self._db_manager.test_connection()
-            if not ok:
-                self._expl_status.setText(f"Explorateur : {msg}")
-                self._tables_list.addItem("(connexion non disponible)")
-                self._clear_explorer_right()
-                return
+        self._tables_list.clear()
+        self._columns_table.setRowCount(0)
+        self._preview_table.setRowCount(0)
+        self._preview_table.setColumnCount(0)
 
-            ok2, tables, msg2 = self._db_manager.list_tables()
-            if not ok2:
-                self._expl_status.setText(f"Explorateur : {msg2}")
-                self._tables_list.addItem("(erreur introspection)")
-                self._clear_explorer_right()
-                return
+        ok, tables, msg = self._db_manager.list_tables()
+        self._expl_status.setText(msg)
+        if not ok:
+            return
 
-            self._expl_status.setText(f"Explorateur : {msg2}")
-            for t in tables:
-                self._tables_list.addItem(t)
-        finally:
-            self._tables_list.blockSignals(False)
+        for table_name in tables:
+            self._tables_list.addItem(table_name)
 
     def _on_table_selection_changed(self) -> None:
         items = self._tables_list.selectedItems()
         if not items:
-            self._clear_explorer_right()
+            self._expl_status.setText("Aucune table sélectionnée.")
+            self._columns_table.setRowCount(0)
+            self._preview_table.setRowCount(0)
+            self._preview_table.setColumnCount(0)
             return
 
         table_name = items[0].text()
-        if not table_name or table_name.startswith("("):
-            self._clear_explorer_right()
-            return
 
-        ok, cols, msg = self._db_manager.get_table_columns(table_name)
-        if not ok:
-            self._expl_status.setText(f"Explorateur : {msg}")
-            self._clear_explorer_right()
-            return
+        ok_cols, cols, msg_cols = self._db_manager.get_table_columns(table_name)
+        self._expl_status.setText(msg_cols)
+        self._columns_table.setRowCount(0)
+        if ok_cols:
+            self._columns_table.setRowCount(len(cols))
+            for r, col in enumerate(cols):
+                self._columns_table.setItem(r, 0, QTableWidgetItem(str(col.get("name", ""))))
+                self._columns_table.setItem(r, 1, QTableWidgetItem(str(col.get("type", ""))))
+                self._columns_table.setItem(r, 2, QTableWidgetItem(str(col.get("nullable", ""))))
+                self._columns_table.setItem(r, 3, QTableWidgetItem(str(col.get("primary_key", ""))))
+                self._columns_table.setItem(r, 4, QTableWidgetItem(str(col.get("default", ""))))
+            self._columns_table.resizeColumnsToContents()
 
-        self._columns_table.setRowCount(len(cols))
-        for r, c in enumerate(cols):
-            self._columns_table.setItem(r, 0, QTableWidgetItem(str(c.get("name", ""))))
-            self._columns_table.setItem(r, 1, QTableWidgetItem(str(c.get("type", ""))))
-            self._columns_table.setItem(r, 2, QTableWidgetItem(str(c.get("nullable", ""))))
-            self._columns_table.setItem(r, 3, QTableWidgetItem(str(c.get("primary_key", ""))))
-            self._columns_table.setItem(r, 4, QTableWidgetItem(str(c.get("default", ""))))
-        self._columns_table.resizeColumnsToContents()
-
-        okp, col_names, rows, msgp = self._db_manager.get_table_preview(table_name, limit=50)
-        if not okp:
-            self._expl_status.setText(f"Explorateur : {msgp}")
+        ok_prev, col_names, rows, msg_prev = self._db_manager.get_table_preview(table_name, limit=100)
+        if not ok_prev:
+            self._expl_status.setText(msg_prev)
             self._preview_table.setRowCount(0)
             self._preview_table.setColumnCount(0)
             return
@@ -356,13 +273,8 @@ class MainWindow(QMainWindow):
         self._preview_table.setColumnCount(len(col_names))
         self._preview_table.setHorizontalHeaderLabels(col_names)
         self._preview_table.setRowCount(len(rows))
-        for rr, row_vals in enumerate(rows):
-            for cc, v in enumerate(row_vals):
-                self._preview_table.setItem(rr, cc, QTableWidgetItem("" if v is None else str(v)))
+        for r, row in enumerate(rows):
+            for c, value in enumerate(row):
+                self._preview_table.setItem(r, c, QTableWidgetItem("" if value is None else str(value)))
         self._preview_table.resizeColumnsToContents()
-        self._expl_status.setText(f"Explorateur : {table_name} | {msgp}")
-
-    def _clear_explorer_right(self) -> None:
-        self._columns_table.setRowCount(0)
-        self._preview_table.setRowCount(0)
-        self._preview_table.setColumnCount(0)
+        self._expl_status.setText(msg_prev)

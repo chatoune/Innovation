@@ -4,7 +4,7 @@ import csv
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional, Dict
+from typing import Any, Dict, Optional
 
 from sqlalchemy import inspect, text
 from sqlalchemy.engine import Engine
@@ -38,6 +38,7 @@ class SeriesResult:
 class PHCService:
     TABLE = "CDV_ALL"
     SOURCE_TABLE_VALUE = "CDV_PHC"
+    RULES_TABLE = "phc_family_rules"
 
     COL_SOURCE = "source_table"
     COL_ARTICLE = "Article"
@@ -72,49 +73,59 @@ class PHCService:
 
     def __init__(self, db: DatabaseManager) -> None:
         self._db = db
-        self._config_db_path: Path | None = None
 
-    # ---------- Config / DB2 compatibility ----------
-    def set_config_db_path(self, path: str | Path | None) -> None:
-        if path is None:
-            self._config_db_path = None
-            return
-        p = Path(path)
-        self._config_db_path = p
-
+    # ---------- Config stockée dans la base DATA ----------
     def config_ready(self) -> bool:
-        return self._config_db_path is not None and self._config_db_path.exists()
+        engine = self._db.engine
+        if engine is None:
+            return False
+        return self._table_exists(engine, self.RULES_TABLE)
 
     def get_all_rules_raw(self) -> list[dict[str, Any]]:
-        """
-        Compatibilité avec l'UI actuelle.
-        Tant qu'aucun backend réel de règles n'est branché sur DB2,
-        on renvoie une liste vide pour éviter les plantages.
-        """
-        if not self.config_ready():
+        engine = self._db.engine
+        if engine is None or not self.config_ready():
             return []
 
+        sql = text(
+            f"SELECT family, subfamily, enabled, priority, "
+            f"startswith_any, contains_any, not_startswith_any, not_contains_any "
+            f"FROM {self._q(self.RULES_TABLE)} "
+            f"ORDER BY priority DESC, family ASC, subfamily ASC, id ASC"
+        )
+
         try:
-            data = self._read_config_payload()
-            rules = data.get("rules", [])
-            if isinstance(rules, list):
-                out: list[dict[str, Any]] = []
-                for rule in rules:
-                    if isinstance(rule, dict):
-                        out.append(rule)
-                return out
-            return []
+            with engine.connect() as conn:
+                rows = conn.execute(sql).fetchall()
+
+            out: list[dict[str, Any]] = []
+            for row in rows:
+                out.append(
+                    {
+                        "family": "" if row[0] is None else str(row[0]).strip(),
+                        "subfamily": "" if row[1] is None else str(row[1]).strip(),
+                        "enabled": int(row[2] or 0),
+                        "priority": int(row[3] or 0),
+                        "criteria": {
+                            "startswith_any": self._csv_to_list(row[4]),
+                            "contains_any": self._csv_to_list(row[5]),
+                            "not_startswith_any": self._csv_to_list(row[6]),
+                            "not_contains_any": self._csv_to_list(row[7]),
+                        },
+                    }
+                )
+            return out
         except Exception:
             return []
 
     def export_bundle_json(self, filepath: str | Path, date_col: str) -> tuple[bool, str]:
         if not self.config_ready():
-            return False, "Base CONFIG (DB2) non définie."
+            return False, "Table de configuration PHC non disponible dans la base DATA."
 
         try:
-            payload = self._read_config_payload()
-            payload["date_column"] = (date_col or "").strip()
-            payload["rules"] = self.get_all_rules_raw()
+            payload = {
+                "date_column": (date_col or "").strip(),
+                "rules": self.get_all_rules_raw(),
+            }
 
             out_path = Path(filepath)
             out_path.write_text(
@@ -126,8 +137,11 @@ class PHCService:
             return False, f"Erreur export bundle JSON : {e}"
 
     def import_bundle_json(self, filepath: str | Path) -> tuple[bool, str]:
+        engine = self._db.engine
+        if engine is None:
+            return False, "Aucune base DATA configurée."
         if not self.config_ready():
-            return False, "Base CONFIG (DB2) non définie."
+            return False, "Table de configuration PHC non disponible dans la base DATA."
 
         try:
             src = Path(filepath)
@@ -155,52 +169,36 @@ class PHCService:
                     }
                 )
 
-            payload = {
-                "date_column": str(data.get("date_column", "")).strip(),
-                "rules": cleaned_rules,
-            }
-            self._write_config_payload(payload)
+            delete_sql = text(f"DELETE FROM {self._q(self.RULES_TABLE)}")
+            insert_sql = text(
+                f"INSERT INTO {self._q(self.RULES_TABLE)} "
+                f"(family, subfamily, enabled, priority, startswith_any, contains_any, not_startswith_any, not_contains_any) "
+                f"VALUES (:family, :subfamily, :enabled, :priority, :startswith_any, :contains_any, :not_startswith_any, :not_contains_any)"
+            )
+
+            with engine.begin() as conn:
+                conn.execute(delete_sql)
+                for rule in cleaned_rules:
+                    criteria = rule["criteria"]
+                    conn.execute(
+                        insert_sql,
+                        {
+                            "family": rule["family"],
+                            "subfamily": rule["subfamily"],
+                            "enabled": rule["enabled"],
+                            "priority": rule["priority"],
+                            "startswith_any": self._list_to_csv(criteria.get("startswith_any", [])),
+                            "contains_any": self._list_to_csv(criteria.get("contains_any", [])),
+                            "not_startswith_any": self._list_to_csv(criteria.get("not_startswith_any", [])),
+                            "not_contains_any": self._list_to_csv(criteria.get("not_contains_any", [])),
+                        },
+                    )
+
             return True, f"Bundle JSON importé : {src}"
         except json.JSONDecodeError as e:
             return False, f"JSON invalide : {e}"
         except Exception as e:
             return False, f"Erreur import bundle JSON : {e}"
-
-    def _read_config_payload(self) -> dict[str, Any]:
-        """
-        Stockage minimaliste de compatibilité :
-        si DB2 est définie, on stocke un JSON à ce chemin.
-        Cela permet à l'UI de fonctionner sans implémentation SQL dédiée.
-        """
-        if self._config_db_path is None:
-            return {"date_column": "", "rules": []}
-
-        path = self._config_db_path
-        if not path.exists():
-            return {"date_column": "", "rules": []}
-
-        try:
-            text_data = path.read_text(encoding="utf-8").strip()
-            if not text_data:
-                return {"date_column": "", "rules": []}
-            data = json.loads(text_data)
-            if isinstance(data, dict):
-                return {
-                    "date_column": str(data.get("date_column", "")).strip(),
-                    "rules": data.get("rules", []) if isinstance(data.get("rules", []), list) else [],
-                }
-        except Exception:
-            pass
-        return {"date_column": "", "rules": []}
-
-    def _write_config_payload(self, payload: dict[str, Any]) -> None:
-        if self._config_db_path is None:
-            raise RuntimeError("Base CONFIG non définie.")
-
-        self._config_db_path.write_text(
-            json.dumps(payload, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
 
     @staticmethod
     def _normalize_criteria(criteria: Any) -> dict[str, list[str]]:
@@ -223,6 +221,17 @@ class PHCService:
             "not_startswith_any": _norm_list("not_startswith_any"),
             "not_contains_any": _norm_list("not_contains_any"),
         }
+
+    @staticmethod
+    def _csv_to_list(value: Any) -> list[str]:
+        raw = "" if value is None else str(value)
+        if not raw.strip():
+            return []
+        return [item.strip() for item in raw.split(",") if item.strip()]
+
+    @staticmethod
+    def _list_to_csv(values: list[str]) -> str:
+        return ", ".join(str(v).strip() for v in values if str(v).strip())
 
     # ---------- Availability / introspection ----------
     def is_available(self) -> tuple[bool, str]:
@@ -504,7 +513,6 @@ class PHCService:
         article_text = f"CAST({self._q(self.COL_ARTICLE)} AS TEXT)"
 
         if fam and self.COL_ARTICLE in available_cols:
-            # BXLT/MT/NT(I)
             if fam == self.FAMILY_MERGE_LABEL_BX_LTMNT:
                 ors = []
                 for p in sorted(self.FAMILY_MERGE_PREFIXES_BX_LTMNT):
@@ -513,7 +521,6 @@ class PHCService:
                     ors.append(f"{article_text} LIKE :{key}")
                 clauses.append("(" + " OR ".join(ors) + ")")
 
-            # BXNR/C/P/RV
             elif fam == self.FAMILY_MERGE_LABEL_BX_NRCPRV:
                 if sub:
                     params["bxnrc_sub"] = f"{sub}%"
@@ -526,7 +533,6 @@ class PHCService:
                         ors.append(f"{article_text} LIKE :{key}")
                     clauses.append("(" + " OR ".join(ors) + ")")
 
-            # BXNA(I)
             elif fam == self.FAMILY_MERGE_LABEL_BX_NAI:
                 if sub:
                     params["bxnai_sub"] = f"{sub}%"
@@ -539,7 +545,6 @@ class PHCService:
                         ors.append(f"{article_text} LIKE :{key}")
                     clauses.append("(" + " OR ".join(ors) + ")")
 
-            # BXNE (sous-familles par préfixes numériques)
             elif fam == "BXNE":
                 if sub == self.BXNE_SUB_ALIM:
                     ors = []
@@ -559,7 +564,6 @@ class PHCService:
                     params["famroot"] = "BXNE%"
                     clauses.append(f"{article_text} LIKE :famroot")
 
-            # familles simples + sous-familles RDN
             else:
                 params["famroot"] = f"{fam}%"
                 clauses.append(f"{article_text} LIKE :famroot")

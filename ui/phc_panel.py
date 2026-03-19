@@ -81,7 +81,7 @@ class PHCPanel(QWidget):
         self._did_init = False
 
         # --- Rules table ---
-        self._rules_title = QLabel("Règles famille / sous-famille (DB2) : -")
+        self._rules_title = QLabel("Règles famille / sous-famille : -")
         self._rules_table = QTableWidget(0, 6)
         self._rules_table.setHorizontalHeaderLabels(["Famille", "Sous-famille", "Enabled", "Priority", "StartsWith", "Contains/Not"])
         self._rules_table.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -204,10 +204,8 @@ class PHCPanel(QWidget):
         if not ok:
             return
 
-        # Need config db ready for families
         if not self._service.config_ready():
-            self._rules_title.setText("Règles famille / sous-famille (DB2) : CONFIG non définie (Menu Fichier)")
-            # we still init date columns so the UI is usable, but families will be empty
+            self._rules_title.setText("Règles famille / sous-famille : table de configuration absente dans la base DATA")
             self._init_date_columns()
             self._did_init = True
             return
@@ -271,12 +269,12 @@ class PHCPanel(QWidget):
     # ---------- Rules UI ----------
     def _refresh_rules_ui(self) -> None:
         if not self._service.config_ready():
-            self._rules_title.setText("Règles famille / sous-famille (DB2) : CONFIG non définie")
+            self._rules_title.setText("Règles famille / sous-famille : table de configuration absente dans la base DATA")
             self._rules_table.setRowCount(0)
             return
 
         rules = self._service.get_all_rules_raw()
-        self._rules_title.setText(f"Règles famille / sous-famille (DB2) : {len(rules)} règle(s)")
+        self._rules_title.setText(f"Règles famille / sous-famille : {len(rules)} règle(s)")
         self._rules_table.setRowCount(len(rules))
 
         for r, rule in enumerate(rules):
@@ -305,7 +303,7 @@ class PHCPanel(QWidget):
 
     def _export_bundle(self) -> None:
         if not self._service.config_ready():
-            QMessageBox.information(self, "Export", "Choisis d'abord une base CONFIG (DB2) dans le menu Fichier.")
+            QMessageBox.information(self, "Export", "Choisis d'abord une base DATA ; la table de configuration y sera créée automatiquement.")
             return
         date_col = self._date_col_combo.currentText().strip()
         filepath, _ = QFileDialog.getSaveFileName(
@@ -324,7 +322,7 @@ class PHCPanel(QWidget):
 
     def _import_bundle(self) -> None:
         if not self._service.config_ready():
-            QMessageBox.information(self, "Import", "Choisis d'abord une base CONFIG (DB2) dans le menu Fichier.")
+            QMessageBox.information(self, "Import", "Choisis d'abord une base DATA ; la table de configuration y sera créée automatiquement.")
             return
         filepath, _ = QFileDialog.getOpenFileName(
             self,
@@ -381,65 +379,46 @@ class PHCPanel(QWidget):
         self._offset += self.PAGE_SIZE
         self._reload_table()
 
-    # ---------- Refresh ----------
     def reload_all(self) -> None:
         self._ensure_initialized()
+        self._reload_table()
+        self._reload_chart()
 
-        ok, msg = self._service.is_available()
-        if not ok:
+    def _reload_table(self) -> None:
+        filters = self._filters()
+        ok, page, msg = self._service.list_lines(filters, limit=self.PAGE_SIZE, offset=self._offset)
+        if not ok or page is None:
             self._title.setText(f"CDV_PHC - {msg}")
-            self._clear_table()
-            self._ax.clear()
-            self._ax.text(0.5, 0.5, msg, ha="center", va="center", transform=self._ax.transAxes)
-            self._canvas.draw()
+            self._table.setRowCount(0)
+            self._table.setColumnCount(0)
+            self._page_label.setText("Page : -")
             return
 
-        self._reload_chart()
-        self._reload_table()
+        self._title.setText(f"CDV_PHC - Lignes (niveau article) : {page.message}")
+        self._table.setColumnCount(len(page.columns))
+        self._table.setHorizontalHeaderLabels(page.columns)
+        self._table.setRowCount(len(page.rows))
+
+        for r, row in enumerate(page.rows):
+            for c, value in enumerate(row):
+                self._table.setItem(r, c, QTableWidgetItem("" if value is None else str(value)))
+
+        self._table.resizeColumnsToContents()
+        current_page = (self._offset // self.PAGE_SIZE) + 1
+        self._page_label.setText(f"Page : {current_page}")
 
     def _reload_chart(self) -> None:
         self._ax.clear()
-        ok, series, msg = self._service.series_qty_distribution(self._filters())
-        if ok and series and series.labels:
-            self._ax.bar(series.labels, series.values)
-            self._ax.set_xlabel("Qté (buckets)")
-            self._ax.set_ylabel("Nb lignes")
-        else:
-            self._ax.text(0.5, 0.5, msg, ha="center", va="center", transform=self._ax.transAxes)
-        self._fig.tight_layout()
-        self._canvas.draw()
 
-    def _reload_table(self) -> None:
-        ok, page, msg = self._service.list_lines(self._filters(), limit=self.PAGE_SIZE, offset=self._offset)
-        fam, sub = self._current_family_selection()
-        suffix = ""
-        if fam:
-            suffix = f" | {fam}" + (f" / {sub}" if sub else "")
-        self._title.setText(f"CDV_PHC - Lignes (niveau article) : {msg}{suffix}")
-
-        if not ok or page is None:
-            self._clear_table()
-            self._page_label.setText("Page : -")
-            self._prev_btn.setEnabled(False)
-            self._next_btn.setEnabled(False)
+        filters = self._filters()
+        ok, series, msg = self._service.series_qty_distribution(filters)
+        if not ok or series is None or not series.labels:
+            self._ax.set_title("Aucune donnée")
+            self._canvas.draw_idle()
             return
 
-        self._render_table(page.columns, page.rows)
-        page_num = (self._offset // self.PAGE_SIZE) + 1
-        self._page_label.setText(f"Page : {page_num} | {msg}")
-        self._prev_btn.setEnabled(self._offset > 0)
-        self._next_btn.setEnabled(len(page.rows) == self.PAGE_SIZE)
-
-    # ---------- Table helpers ----------
-    def _clear_table(self) -> None:
-        self._table.setRowCount(0)
-        self._table.setColumnCount(0)
-
-    def _render_table(self, columns: list[str], rows: list[list[object]]) -> None:
-        self._table.setColumnCount(len(columns))
-        self._table.setHorizontalHeaderLabels(columns)
-        self._table.setRowCount(len(rows))
-        for r, row_vals in enumerate(rows):
-            for c, v in enumerate(row_vals):
-                self._table.setItem(r, c, QTableWidgetItem("" if v is None else str(v)))
-        self._table.resizeColumnsToContents()
+        self._ax.bar(series.labels, series.values)
+        self._ax.set_title("Répartition des quantités demandées")
+        self._ax.set_xlabel("Classes")
+        self._ax.set_ylabel("Nombre de lignes")
+        self._canvas.draw_idle()
