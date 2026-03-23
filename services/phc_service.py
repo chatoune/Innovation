@@ -560,20 +560,26 @@ class PHCService:
             return False, [], msg
 
         try:
-            # On requête directement la table de cache pour avoir les couples (family, subfamily)
-            sql = text(
-                f"SELECT DISTINCT family, subfamily "
-                f"FROM {self._q(self.ARTICLE_CACHE_TABLE)} "
-                f"ORDER BY family ASC, subfamily ASC"
-            )
-
             fam_to_subs: dict[str, set[str]] = {}
             fam_seen: set[str] = set()
 
-            with engine.connect() as conn:
-                rows = conn.execute(sql).fetchall()
+            # 1. Récupérer depuis le cache (articles déjà classés)
+            sql_cache = text(
+                f"SELECT DISTINCT family, subfamily "
+                f"FROM {self._q(self.ARTICLE_CACHE_TABLE)} "
+            )
+            # 2. Récupérer aussi depuis les règles (pour les nouvelles familles sans articles encore)
+            sql_rules = text(
+                f"SELECT DISTINCT family, subfamily "
+                f"FROM {self._q(self.RULES_TABLE)} "
+                f"WHERE enabled = 1"
+            )
 
-            for fam, sub in rows:
+            with engine.connect() as conn:
+                rows_cache = conn.execute(sql_cache).fetchall()
+                rows_rules = conn.execute(sql_rules).fetchall()
+
+            for fam, sub in list(rows_cache) + list(rows_rules):
                 f = str(fam or "").strip()
                 s = str(sub or "").strip()
                 if f:

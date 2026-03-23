@@ -59,7 +59,15 @@ class MultiSelectComboBox(QComboBox):
         self.lineEdit().setReadOnly(True)
         self._placeholder = placeholder
         self._update_text()
+        # On utilise le clic sur la vue pour basculer l'état
         self.view().pressed.connect(self._on_pressed)
+
+    def hidePopup(self) -> None:
+        # Empêche la fermeture du popup si on clique sur un item (multi-sélection)
+        # Mais on laisse fermer si on clique ailleurs ou si on appuie sur Esc.
+        if self.view().underMouse():
+            return
+        super().hidePopup()
 
     def set_items_preserve(self, items: list[str], preserve: list[str]) -> None:
         preserve_set = set(preserve or [])
@@ -68,7 +76,9 @@ class MultiSelectComboBox(QComboBox):
         for it in items:
             item = QStandardItem(it)
             item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
-            item.setData(Qt.Checked if it in preserve_set else Qt.Unchecked, Qt.CheckStateRole)
+            # Important: s'assurer que l'item est bien "checkable"
+            st = Qt.Checked if it in preserve_set else Qt.Unchecked
+            item.setCheckState(st)
             model.appendRow(item)
         self._update_text()
 
@@ -77,25 +87,31 @@ class MultiSelectComboBox(QComboBox):
         out: list[str] = []
         for r in range(model.rowCount()):
             item = model.item(r)
-            if item.checkState() == Qt.Checked:
+            if item and item.checkState() == Qt.Checked:
                 out.append(item.text())
         return out
 
     def clear_selection(self) -> None:
         model: QStandardItemModel = self.model()
         for r in range(model.rowCount()):
-            model.item(r).setCheckState(Qt.Unchecked)
+            item = model.item(r)
+            if item:
+                item.setCheckState(Qt.Unchecked)
         self._update_text()
 
     def _on_pressed(self, index) -> None:
         model: QStandardItemModel = self.model()
         item = model.itemFromIndex(index)
-        item.setCheckState(Qt.Unchecked if item.checkState() == Qt.Checked else Qt.Checked)
-        self._update_text()
+        if item:
+            new_state = Qt.Unchecked if item.checkState() == Qt.Checked else Qt.Checked
+            item.setCheckState(new_state)
+            self._update_text()
 
     def _update_text(self) -> None:
         selected = self.selected_items()
-        self.lineEdit().setText(self._placeholder if not selected else ", ".join(selected))
+        txt = self._placeholder if not selected else ", ".join(selected)
+        self.lineEdit().setText(txt)
+        self.setToolTip(txt)
 
 
 class PHCPanel(QWidget):
