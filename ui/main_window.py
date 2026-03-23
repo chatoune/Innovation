@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
     QFileDialog,
     QLabel,
@@ -93,6 +94,7 @@ class MainWindow(QMainWindow):
         try:
             self._db_manager.configure_sqlite_file(db_path)
             ConfigDB(db_path).init()
+            self._phc_service.refresh_article_cache()
             self.statusBar().showMessage(f"Base DATA: {db_path}")
         except Exception:
             self._db_manager.clear()
@@ -120,6 +122,7 @@ class MainWindow(QMainWindow):
         try:
             self._db_manager.configure_sqlite_file(selected_path)
             ConfigDB(selected_path).init()
+            self._phc_service.refresh_article_cache()
         except Exception as e:
             QMessageBox.critical(self, "Erreur configuration", str(e))
             return
@@ -268,3 +271,7 @@ class MainWindow(QMainWindow):
                 self._preview_table.setItem(r, c, QTableWidgetItem("" if value is None else str(value)))
         self._preview_table.resizeColumnsToContents()
         self._expl_status.setText(msg_prev)
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self._phc_panel._save_settings()
+        super().closeEvent(event)

@@ -20,6 +20,16 @@ CREATE TABLE IF NOT EXISTS phc_family_rules (
 );
 CREATE INDEX IF NOT EXISTS idx_phc_family_rules_family_subfamily
     ON phc_family_rules(family, subfamily);
+
+CREATE TABLE IF NOT EXISTS phc_article_cache (
+    article TEXT PRIMARY KEY,
+    family TEXT NOT NULL,
+    subfamily TEXT NOT NULL DEFAULT '',
+    rule_id INTEGER,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_phc_article_cache_family_subfamily
+    ON phc_article_cache(family, subfamily);
 """
 
 

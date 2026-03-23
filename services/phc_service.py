@@ -32,6 +32,7 @@ class PHCService:
     TABLE = "CDV_ALL"
     SOURCE_TABLE_VALUE = "CDV_PHC"
     RULES_TABLE = "phc_family_rules"
+    ARTICLE_CACHE_TABLE = "phc_article_cache"
 
     COL_SOURCE = "source_table"
     COL_ARTICLE = "Article"
@@ -174,6 +175,7 @@ class PHCService:
                     ),
                     {**payload, "rule_id": int(rule_id)},
                 )
+            self.refresh_article_cache()
             return True, "Règle mise à jour."
         except Exception as e:
             return False, f"Erreur enregistrement règle : {e}"
@@ -191,9 +193,66 @@ class PHCService:
                     text(f"DELETE FROM {self._q(self.RULES_TABLE)} WHERE id = :rule_id"),
                     {"rule_id": int(rule_id)},
                 )
+            self.refresh_article_cache()
             return True, "Règle supprimée."
         except Exception as e:
             return False, f"Erreur suppression règle : {e}"
+
+    def refresh_article_cache(self) -> tuple[bool, str]:
+        """
+        Vide et recalcule la table phc_article_cache à partir de CDV_ALL et des règles.
+        """
+        engine = self._db.engine
+        if engine is None:
+            return False, "Aucun engine configuré."
+
+        try:
+            # 1. Lister tous les articles distincts de CDV_PHC
+            src_expr = f"TRIM(UPPER(CAST({self._q(self.COL_SOURCE)} AS TEXT) || ''))"
+            sql_articles = text(
+                f"SELECT DISTINCT {self._q(self.COL_ARTICLE)} "
+                f"FROM {self._q(self.TABLE)} "
+                f"WHERE {src_expr} = :src"
+            )
+
+            with engine.connect() as conn:
+                rows = conn.execute(sql_articles, {"src": self.SOURCE_TABLE_VALUE}).fetchall()
+
+            articles = [str(r[0]).strip() for r in rows if r[0] is not None]
+            if not articles:
+                return True, "Aucun article à mettre en cache."
+
+            # 2. Charger les règles
+            rules = self.get_all_rules_raw()
+
+            # 3. Calculer les mappings
+            cache_entries = []
+            for a in articles:
+                if not a:
+                    continue
+                match = self._find_best_rule_for_article(a, rules)
+                if match:
+                    cache_entries.append({
+                        "article": a,
+                        "family": str(match.get("family", "")).strip(),
+                        "subfamily": str(match.get("subfamily", "")).strip(),
+                        "rule_id": match.get("id")
+                    })
+
+            # 4. Insérer en base (bulk)
+            with engine.begin() as conn:
+                conn.execute(text(f"DELETE FROM {self._q(self.ARTICLE_CACHE_TABLE)}"))
+                if cache_entries:
+                    sql_ins = text(
+                        f"INSERT INTO {self._q(self.ARTICLE_CACHE_TABLE)} "
+                        f"(article, family, subfamily, rule_id) "
+                        f"VALUES (:article, :family, :subfamily, :rule_id)"
+                    )
+                    conn.execute(sql_ins, cache_entries)
+
+            return True, f"Cache mis à jour ({len(cache_entries)} articles classés)."
+        except Exception as e:
+            return False, f"Erreur refresh_article_cache: {e}"
 
     def build_default_rules_from_articles(self) -> list[dict[str, Any]]:
         engine = self._db.engine
@@ -448,6 +507,7 @@ class PHCService:
                         },
                     )
 
+            self.refresh_article_cache()
             return True, f"Bundle JSON importé : {src}"
         except json.JSONDecodeError as e:
             return False, f"JSON invalide : {e}"
@@ -500,53 +560,26 @@ class PHCService:
             return False, [], msg
 
         try:
-            available_cols = self._get_table_columns(engine, self.TABLE)
-            if self.COL_ARTICLE not in available_cols or self.COL_SOURCE not in available_cols:
-                return False, [], "Colonnes Article/source_table manquantes."
-
-            rules = self.get_all_rules_raw()
-            src_expr = f"TRIM(UPPER(CAST({self._q(self.COL_SOURCE)} AS TEXT) || ''))"
+            # On requête directement la table de cache pour avoir les couples (family, subfamily)
             sql = text(
-                f"SELECT {self._q(self.COL_ARTICLE)} AS article "
-                f"FROM {self._q(self.TABLE)} "
-                f"WHERE {src_expr} = :src"
+                f"SELECT DISTINCT family, subfamily "
+                f"FROM {self._q(self.ARTICLE_CACHE_TABLE)} "
+                f"ORDER BY family ASC, subfamily ASC"
             )
 
             fam_to_subs: dict[str, set[str]] = {}
             fam_seen: set[str] = set()
 
             with engine.connect() as conn:
-                result = conn.execute(sql, {"src": self.SOURCE_TABLE_VALUE})
-                while True:
-                    chunk = result.fetchmany(5000)
-                    if not chunk:
-                        break
-                    for (article,) in chunk:
-                        a = "" if article is None else str(article).strip()
-                        if not a:
-                            continue
+                rows = conn.execute(sql).fetchall()
 
-                        match = self._find_best_rule_for_article(a, rules)
-                        if match is None:
-                            continue
-
-                        fam = str(match.get("family", "")).strip()
-                        sub = str(match.get("subfamily", "")).strip()
-
-                        if not fam:
-                            continue
-
-                        fam_seen.add(fam)
-                        if sub:
-                            fam_to_subs.setdefault(fam, set()).add(sub)
-
-            for rule in rules:
-                fam = str(rule.get("family", "")).strip()
-                sub = str(rule.get("subfamily", "")).strip()
-                if fam:
-                    fam_seen.add(fam)
-                if fam and sub:
-                    fam_to_subs.setdefault(fam, set()).add(sub)
+            for fam, sub in rows:
+                f = str(fam or "").strip()
+                s = str(sub or "").strip()
+                if f:
+                    fam_seen.add(f)
+                    if s:
+                        fam_to_subs.setdefault(f, set()).add(s)
 
             families = sorted(fam_seen, key=str.upper)
             options: list[tuple[str, str, str]] = [("(Toutes familles)", "", "")]
@@ -582,39 +615,31 @@ class PHCService:
             available_cols = self._get_table_columns(engine, self.TABLE)
             if date_column not in available_cols:
                 return False, [], f"Colonne date introuvable : {date_column}"
-            if self.COL_ARTICLE not in available_cols:
-                return False, [], f"Colonne introuvable : {self.COL_ARTICLE}"
 
-            rules = self.get_all_rules_raw()
-            sql = text(
-                f"SELECT {self._q(self.COL_ARTICLE)} AS article, {self._q(date_column)} AS date_value "
-                f"FROM {self._q(self.TABLE)} "
-                f"WHERE TRIM(UPPER(CAST({self._q(self.COL_SOURCE)} AS TEXT) || '')) = :src"
-            )
+            # Extraction de l'année en SQL
+            year_expr = f"SUBSTR(CAST(t.{self._q(date_column)} AS TEXT), 1, 4)"
+            
+            from_clause = f"{self._q(self.TABLE)} AS t"
+            join_clause = f"LEFT JOIN {self._q(self.ARTICLE_CACHE_TABLE)} AS c ON t.{self._q(self.COL_ARTICLE)} = c.article"
+            
+            where_parts = [f"TRIM(UPPER(CAST(t.{self._q(self.COL_SOURCE)} AS TEXT) || '')) = :src"]
+            params: dict[str, Any] = {"src": self.SOURCE_TABLE_VALUE}
 
-            years_found: set[str] = set()
+            if family_root:
+                where_parts.append("c.family = :fam")
+                params["fam"] = family_root
+            if subfamily:
+                where_parts.append("c.subfamily = :sub")
+                params["sub"] = subfamily
+
+            where_clause = " WHERE " + " AND ".join(where_parts)
+            
+            sql = text(f"SELECT DISTINCT {year_expr} FROM {from_clause} {join_clause} {where_clause} ORDER BY 1 DESC")
+
             with engine.connect() as conn:
-                rows = conn.execute(sql, {"src": self.SOURCE_TABLE_VALUE}).fetchall()
+                rows = conn.execute(sql, params).fetchall()
 
-            selected_family = (family_root or "").strip()
-            selected_subfamily = (subfamily or "").strip()
-
-            for article, date_value in rows:
-                a = "" if article is None else str(article).strip()
-                if selected_family:
-                    match = self._find_best_rule_for_article(a, rules)
-                    if match is None:
-                        continue
-                    if str(match.get("family", "")).strip() != selected_family:
-                        continue
-                    if selected_subfamily and str(match.get("subfamily", "")).strip() != selected_subfamily:
-                        continue
-
-                year = self._extract_year(date_value)
-                if year:
-                    years_found.add(year)
-
-            years = sorted(years_found, reverse=True)
+            years = [str(r[0]) for r in rows if r[0] and str(r[0]).isdigit()]
             return True, years, f"{len(years)} année(s)"
         except Exception as e:
             return False, [], f"Erreur inattendue: {e}"
@@ -628,7 +653,7 @@ class PHCService:
     ) -> tuple[bool, Optional[PageResult], str]:
         engine = self._db.engine
         if engine is None:
-            return False, None, "Aucun engine configuré."
+            return False, None, "Aucune base configurée."
         ok, msg = self.is_available()
         if not ok:
             return False, None, msg
@@ -647,67 +672,176 @@ class PHCService:
             if self.COL_ARTICLE not in cols_to_select:
                 return False, None, "Colonne Article indisponible."
 
-            select_parts = [self._q(c) for c in cols_to_select]
-            sql = text(
-                f"SELECT {', '.join(select_parts)} "
-                f"FROM {self._q(self.TABLE)} "
-                f"WHERE TRIM(UPPER(CAST({self._q(self.COL_SOURCE)} AS TEXT) || '')) = :src"
-            )
+            # Construction de la requête SQL avec JOIN sur le cache
+            select_parts = [f"t.{self._q(c)}" for c in cols_to_select]
+            
+            # Montant calculé en SQL
+            has_calc = self.COL_QTY in available_cols and self.COL_PRICE_NET in available_cols
+            if has_calc:
+                select_parts.append(f"(CAST(REPLACE(t.{self._q(self.COL_QTY)}, ',', '.') AS FLOAT) * CAST(REPLACE(t.{self._q(self.COL_PRICE_NET)}, ',', '.') AS FLOAT)) AS {self.CALC_COL_ALIAS}")
+
+            from_clause = f"{self._q(self.TABLE)} AS t"
+            join_clause = f"LEFT JOIN {self._q(self.ARTICLE_CACHE_TABLE)} AS c ON t.{self._q(self.COL_ARTICLE)} = c.article"
+            
+            where_parts = [f"TRIM(UPPER(CAST(t.{self._q(self.COL_SOURCE)} AS TEXT) || '')) = :src"]
+            params: dict[str, Any] = {"src": self.SOURCE_TABLE_VALUE}
+
+            if filters.family_root:
+                where_parts.append("c.family = :fam")
+                params["fam"] = filters.family_root
+            if filters.subfamily:
+                where_parts.append("c.subfamily = :sub")
+                params["sub"] = filters.subfamily
+
+            from sqlalchemy import bindparam
+
+            if filters.years:
+                year_expr = f"SUBSTR(CAST(t.{self._q(date_col)} AS TEXT), 1, 4)"
+                where_parts.append(f"{year_expr} IN :years")
+                params["years"] = tuple(filters.years)
+
+            where_clause = " WHERE " + " AND ".join(where_parts)
+            order_dir = "DESC" if order_desc else "ASC"
+            order_clause = f" ORDER BY t.{self._q(date_col)} {order_dir}"
+            
+            sql = text(f"SELECT {', '.join(select_parts)} FROM {from_clause} {join_clause} {where_clause} {order_clause} LIMIT :limit OFFSET :offset")
+            sql_count = text(f"SELECT COUNT(*) FROM {from_clause} {join_clause} {where_clause}")
+
+            # On utilise .bindparams(bindparam("years", expanding=True)) si filters.years est présent
+            if filters.years:
+                sql = sql.bindparams(bindparam("years", expanding=True))
+                sql_count = sql_count.bindparams(bindparam("years", expanding=True))
+
+            params["limit"] = limit
+            params["offset"] = offset
 
             with engine.connect() as conn:
-                rows = conn.execute(sql, {"src": self.SOURCE_TABLE_VALUE}).fetchall()
+                total_count = conn.execute(sql_count, params).scalar_one()
+                result = conn.execute(sql, params)
+                rows = [list(r) for r in result.fetchall()]
 
-            raw_rows = [list(r) for r in rows]
-            date_idx = cols_to_select.index(date_col)
-            article_idx = cols_to_select.index(self.COL_ARTICLE)
-            qty_idx = cols_to_select.index(self.COL_QTY) if self.COL_QTY in cols_to_select else -1
-            price_idx = cols_to_select.index(self.COL_PRICE_NET) if self.COL_PRICE_NET in cols_to_select else -1
-
-            filtered_rows: list[list[Any]] = []
-            selected_years = {y.strip() for y in (filters.years or []) if y and y.strip()}
-            selected_family = (filters.family_root or "").strip()
-            selected_subfamily = (filters.subfamily or "").strip()
-            rules = self.get_all_rules_raw()
-
-            for row in raw_rows:
-                article = "" if row[article_idx] is None else str(row[article_idx]).strip()
-
-                if selected_family:
-                    match = self._find_best_rule_for_article(article, rules)
-                    if match is None:
-                        continue
-                    if str(match.get("family", "")).strip() != selected_family:
-                        continue
-                    if selected_subfamily and str(match.get("subfamily", "")).strip() != selected_subfamily:
-                        continue
-
-                row_year = self._extract_year(row[date_idx])
-                if selected_years and row_year not in selected_years:
-                    continue
-
-                out_row = list(row)
-                if qty_idx >= 0 and price_idx >= 0:
-                    qty = self._safe_float(row[qty_idx])
-                    price = self._safe_float(row[price_idx])
-                    out_row.append(qty * price)
-
-                filtered_rows.append(out_row)
-
-            filtered_rows.sort(
-                key=lambda row: self._sortable_value(row[date_idx]),
-                reverse=order_desc,
-            )
-
-            page_rows = filtered_rows[offset:offset + max(1, limit)]
             out_columns = list(cols_to_select)
-            if qty_idx >= 0 and price_idx >= 0:
+            if has_calc:
                 out_columns.append(self.CALC_COL_HEADER)
 
-            return True, PageResult(columns=out_columns, rows=page_rows, message=f"{len(filtered_rows)} ligne(s)"), "OK"
+            return True, PageResult(columns=out_columns, rows=rows, message=f"{total_count} ligne(s)"), "OK"
         except SQLAlchemyError as e:
             return False, None, f"Erreur SQLAlchemy: {e}"
         except Exception as e:
             return False, None, f"Erreur inattendue: {e}"
+
+    def get_qty_by_year_data(self, filters: PHCFilters) -> tuple[bool, list[tuple[str, float]], str]:
+        engine = self._db.engine
+        if engine is None:
+            return False, [], "Aucun engine configuré."
+
+        try:
+            date_col = (filters.date_column or "").strip()
+            if not date_col:
+                return False, [], "Colonne date non configurée."
+
+            year_expr = f"SUBSTR(CAST(t.{self._q(date_col)} AS TEXT), 1, 4)"
+            qty_expr = f"CAST(REPLACE(t.{self._q(self.COL_QTY)}, ',', '.') AS FLOAT)"
+            
+            from_clause = f"{self._q(self.TABLE)} AS t"
+            join_clause = f"LEFT JOIN {self._q(self.ARTICLE_CACHE_TABLE)} AS c ON t.{self._q(self.COL_ARTICLE)} = c.article"
+            
+            where_parts = [f"TRIM(UPPER(CAST(t.{self._q(self.COL_SOURCE)} AS TEXT) || '')) = :src"]
+            params: dict[str, Any] = {"src": self.SOURCE_TABLE_VALUE}
+
+            if filters.family_root:
+                where_parts.append("c.family = :fam")
+                params["fam"] = filters.family_root
+            if filters.subfamily:
+                where_parts.append("c.subfamily = :sub")
+                params["sub"] = filters.subfamily
+
+            where_clause = " WHERE " + " AND ".join(where_parts)
+            
+            sql = text(
+                f"SELECT {year_expr} as year, SUM({qty_expr}) as total_qty "
+                f"FROM {from_clause} {join_clause} {where_clause} "
+                f"GROUP BY 1 ORDER BY 1 ASC"
+            )
+
+            with engine.connect() as conn:
+                rows = conn.execute(sql, params).fetchall()
+
+            data = [(str(r[0]), float(r[1] or 0)) for r in rows if r[0] and str(r[0]).isdigit()]
+            return True, data, "OK"
+        except Exception as e:
+            return False, [], f"Erreur: {e}"
+
+    def get_rs_distribution_data(self, filters: PHCFilters, top_n: int = 10) -> tuple[bool, list[tuple[str, float]], str]:
+        engine = self._db.engine
+        if engine is None:
+            return False, [], "Aucun engine configuré."
+
+        try:
+            date_col = (filters.date_column or "").strip()
+            if not date_col:
+                return False, [], "Colonne date non configurée."
+
+            rs_col = self._q(self.COL_RS)
+            qty_expr = f"CAST(REPLACE(t.{self._q(self.COL_QTY)}, ',', '.') AS FLOAT)"
+            
+            from_clause = f"{self._q(self.TABLE)} AS t"
+            join_clause = f"LEFT JOIN {self._q(self.ARTICLE_CACHE_TABLE)} AS c ON t.{self._q(self.COL_ARTICLE)} = c.article"
+            
+            where_parts = [f"TRIM(UPPER(CAST(t.{self._q(self.COL_SOURCE)} AS TEXT) || '')) = :src"]
+            params: dict[str, Any] = {"src": self.SOURCE_TABLE_VALUE}
+
+            if filters.family_root:
+                where_parts.append("c.family = :fam")
+                params["fam"] = filters.family_root
+            if filters.subfamily:
+                where_parts.append("c.subfamily = :sub")
+                params["sub"] = filters.subfamily
+
+            from sqlalchemy import bindparam
+            if filters.years:
+                year_expr = f"SUBSTR(CAST(t.{self._q(date_col)} AS TEXT), 1, 4)"
+                where_parts.append(f"{year_expr} IN :years")
+                params["years"] = tuple(filters.years)
+
+            where_clause = " WHERE " + " AND ".join(where_parts)
+            
+            # 1. Calculer le total global pour le filtrage actuel
+            sql_total = text(f"SELECT SUM({qty_expr}) FROM {from_clause} {join_clause} {where_clause}")
+            
+            # 2. Top N Raisons Sociales
+            sql_top = text(
+                f"SELECT t.{rs_col}, SUM({qty_expr}) as total_qty "
+                f"FROM {from_clause} {join_clause} {where_clause} "
+                f"GROUP BY 1 ORDER BY 2 DESC LIMIT :top_n"
+            )
+            
+            if filters.years:
+                sql_total = sql_total.bindparams(bindparam("years", expanding=True))
+                sql_top = sql_top.bindparams(bindparam("years", expanding=True))
+            
+            params_top = {**params, "top_n": top_n}
+
+            with engine.connect() as conn:
+                grand_total = float(conn.execute(sql_total, params).scalar() or 0)
+                rows = conn.execute(sql_top, params_top).fetchall()
+
+            data: list[tuple[str, float]] = []
+            sum_top = 0.0
+            for r in rows:
+                if r[0]:
+                    val = float(r[1] or 0)
+                    data.append((str(r[0]), val))
+                    sum_top += val
+            
+            # Ajouter le champ "Autres"
+            other_val = grand_total - sum_top
+            if other_val > 0.01:
+                data.append(("Autres", other_val))
+
+            return True, data, "OK"
+        except Exception as e:
+            return False, [], f"Erreur: {e}"
 
     @staticmethod
     def _normalize_criteria(criteria: Any) -> dict[str, Any]:

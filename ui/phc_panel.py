@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSettings, Qt
 from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -18,13 +18,37 @@ from PySide6.QtWidgets import (
     QPushButton,
     QSizePolicy,
     QSpinBox,
+    QSplitter,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
 
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+
 from services.phc_service import PHCFilters, PHCService
+
+
+class ChartWidget(FigureCanvas):
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = self.fig.add_subplot(111)
+        super().__init__(self.fig)
+        self.setParent(parent)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.updateGeometry()
+
+    def clear(self):
+        self.axes.clear()
+        self.draw()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.fig.tight_layout()
+        self.draw()
 
 
 class MultiSelectComboBox(QComboBox):
@@ -204,6 +228,9 @@ class PHCPanel(QWidget):
         self._next_btn.clicked.connect(self._next)
         self._page_label = QLabel("Page : -")
 
+        self._hist_chart = ChartWidget(self, width=4, height=3)
+        self._pie_chart = ChartWidget(self, width=4, height=3)
+
         root = QVBoxLayout(self)
 
         top_bar = QHBoxLayout()
@@ -228,17 +255,66 @@ class PHCPanel(QWidget):
         root.addWidget(self._rules_table)
         root.addWidget(self._rule_form_box)
 
+        # Splitter principal (Table vs Charts)
+        self._main_splitter = QSplitter(Qt.Horizontal)
+        
+        # Partie Table
+        self._table_container = QWidget()
+        table_part = QVBoxLayout(self._table_container)
+        table_part.setContentsMargins(0, 0, 0, 0)
         pager = QHBoxLayout()
         pager.addWidget(self._prev_btn)
         pager.addWidget(self._page_label)
         pager.addWidget(self._next_btn)
         pager.addStretch()
 
-        root.addWidget(self._title)
-        root.addLayout(pager)
-        root.addWidget(self._table, stretch=1)
+        table_part.addWidget(self._title)
+        table_part.addLayout(pager)
+        table_part.addWidget(self._table, stretch=1)
+        
+        # Partie Charts avec Splitter vertical
+        self._charts_splitter = QSplitter(Qt.Vertical)
+        
+        self._hist_container = QWidget()
+        hist_layout = QVBoxLayout(self._hist_container)
+        hist_layout.setContentsMargins(0, 0, 0, 0)
+        hist_layout.addWidget(QLabel("<b>Qté par année</b> (hors filtre années)"))
+        hist_layout.addWidget(self._hist_chart)
+        
+        self._pie_container = QWidget()
+        pie_layout = QVBoxLayout(self._pie_container)
+        pie_layout.setContentsMargins(0, 0, 0, 0)
+        pie_layout.addWidget(QLabel("<b>Top 10 Raison sociale</b> (sur années sélectionnées)"))
+        pie_layout.addWidget(self._pie_chart)
+        
+        self._charts_splitter.addWidget(self._hist_container)
+        self._charts_splitter.addWidget(self._pie_container)
+        
+        self._main_splitter.addWidget(self._table_container)
+        self._main_splitter.addWidget(self._charts_splitter)
+        
+        # Stretch par défaut
+        self._main_splitter.setStretchFactor(0, 3)
+        self._main_splitter.setStretchFactor(1, 1)
 
+        root.addWidget(self._main_splitter, stretch=1)
+
+        self._load_settings()
         self.reload_all()
+
+    def _load_settings(self) -> None:
+        settings = QSettings("GEORGIN", "Innovation")
+        main_state = settings.value("phc_main_splitter")
+        if main_state:
+            self._main_splitter.restoreState(main_state)
+        charts_state = settings.value("phc_charts_splitter")
+        if charts_state:
+            self._charts_splitter.restoreState(charts_state)
+
+    def _save_settings(self) -> None:
+        settings = QSettings("GEORGIN", "Innovation")
+        settings.setValue("phc_main_splitter", self._main_splitter.saveState())
+        settings.setValue("phc_charts_splitter", self._charts_splitter.saveState())
 
     def _ensure_initialized(self) -> None:
         if self._did_init:
@@ -491,7 +567,6 @@ class PHCPanel(QWidget):
     def _on_family_changed(self) -> None:
         self._offset = 0
         self._reload_years(preserve=True)
-        self.reload_all()
 
     def _on_date_changed(self) -> None:
         self._offset = 0
@@ -534,9 +609,12 @@ class PHCPanel(QWidget):
             self._page_label.setText("Page : -")
             self._prev_btn.setEnabled(False)
             self._next_btn.setEnabled(False)
+            self._hist_chart.clear()
+            self._pie_chart.clear()
             return
 
         self._reload_table()
+        self._reload_charts()
 
     def _reload_table(self) -> None:
         ok, page, msg = self._service.list_lines(self._filters(), limit=self.PAGE_SIZE, offset=self._offset)
@@ -566,8 +644,48 @@ class PHCPanel(QWidget):
     def _render_table(self, columns: list[str], rows: list[list[object]]) -> None:
         self._table.setColumnCount(len(columns))
         self._table.setHorizontalHeaderLabels(columns)
-        self._table.setRowCount(len(rows))
-        for r, row_vals in enumerate(rows):
-            for c, v in enumerate(row_vals):
-                self._table.setItem(r, c, QTableWidgetItem("" if v is None else str(v)))
-        self._table.resizeColumnsToContents()
+        self._table.setUpdatesEnabled(False)
+        try:
+            self._table.setRowCount(len(rows))
+            for r, row_vals in enumerate(rows):
+                for c, v in enumerate(row_vals):
+                    self._table.setItem(r, c, QTableWidgetItem("" if v is None else str(v)))
+            self._table.resizeColumnsToContents()
+        finally:
+            self._table.setUpdatesEnabled(True)
+
+    def _reload_charts(self) -> None:
+        filters = self._filters()
+        if not filters.date_column:
+            self._hist_chart.clear()
+            self._pie_chart.clear()
+            return
+
+        # 1. Histogramme (Quantité par année, sans filtre années)
+        ok_hist, hist_data, _msg = self._service.get_qty_by_year_data(filters)
+        self._hist_chart.axes.clear()
+        if ok_hist and hist_data:
+            years = [d[0] for d in hist_data]
+            qtys = [d[1] for d in hist_data]
+            bars = self._hist_chart.axes.bar(years, qtys, color="skyblue")
+            self._hist_chart.axes.bar_label(bars, padding=3)
+            self._hist_chart.axes.set_ylabel("Quantité")
+            self._hist_chart.axes.tick_params(axis="x", rotation=45)
+            self._hist_chart.fig.tight_layout()
+        self._hist_chart.draw()
+
+        # 2. Pie Chart (Raison sociale par Qté, sur années sélectionnées)
+        ok_pie, pie_data, _msg = self._service.get_rs_distribution_data(filters, top_n=10)
+        self._pie_chart.axes.clear()
+        if ok_pie and pie_data:
+            labels = []
+            for d in pie_data:
+                label = d[0]
+                if label != "Autres" and len(label) > 20:
+                    label = label[:20] + "..."
+                labels.append(label)
+
+            values = [d[1] for d in pie_data]
+            self._pie_chart.axes.pie(values, labels=labels, autopct="%1.1f%%", startangle=140)
+            self._pie_chart.fig.tight_layout()
+        self._pie_chart.draw()
