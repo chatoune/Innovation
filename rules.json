@@ -1,0 +1,193 @@
+{
+  "date_column": "Date",
+  "rules": [
+    {
+      "id": 32,
+      "family": "RDN",
+      "subfamily": "Relais bistable",
+      "enabled": 1,
+      "priority": 300,
+      "criteria": {
+        "regex_pattern": "^RDN(?:310|410)",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 27,
+      "family": "BXNA(I)",
+      "subfamily": "BXNA1",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^BXNA1",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 28,
+      "family": "BXNA(I)",
+      "subfamily": "BXNAI2",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^BXNAI2",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 30,
+      "family": "BXNE",
+      "subfamily": "Alimentations",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^(?:BXNE0|BXNE1|BXNE2|BXNE3)",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 31,
+      "family": "BXNE",
+      "subfamily": "Alimentations linéaires",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^(?:BXNE4|BXNE5|BXNE6|BXNE7)",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 22,
+      "family": "BXNR/C/P/RV",
+      "subfamily": "BXNC",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^BXNC",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 23,
+      "family": "BXNR/C/P/RV",
+      "subfamily": "BXNP",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^BXNP",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 24,
+      "family": "BXNR/C/P/RV",
+      "subfamily": "BXNR",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^BXNR",
+        "contains_any": [],
+        "not_contains_any": "V"
+      }
+    },
+    {
+      "id": 25,
+      "family": "BXNR/C/P/RV",
+      "subfamily": "BXNRV",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^BXNRV",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 33,
+      "family": "RDN",
+      "subfamily": "Isolateur TOR",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^RDN",
+        "contains_any": [
+          "V",
+          "W"
+        ],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 20,
+      "family": "BXLT/MT/NT(I)",
+      "subfamily": "",
+      "enabled": 1,
+      "priority": 100,
+      "criteria": {
+        "regex_pattern": "^(?:BXLTI|BXLT|BXMTI|BXMT|BXNTI|BXNT)",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 26,
+      "family": "BXNA(I)",
+      "subfamily": "",
+      "enabled": 1,
+      "priority": 100,
+      "criteria": {
+        "regex_pattern": "^(?:BXNA|BXNAI)",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 29,
+      "family": "BXNE",
+      "subfamily": "",
+      "enabled": 1,
+      "priority": 100,
+      "criteria": {
+        "regex_pattern": "^BXNE",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 21,
+      "family": "BXNR/C/P/RV",
+      "subfamily": "",
+      "enabled": 1,
+      "priority": 100,
+      "criteria": {
+        "regex_pattern": "^(?:BXNC|BXNP|BXNR|BXNRV)",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 34,
+      "family": "RDN",
+      "subfamily": "Relais",
+      "enabled": 1,
+      "priority": 100,
+      "criteria": {
+        "regex_pattern": "^RDN",
+        "contains_any": [],
+        "not_contains_any": [
+          "V",
+          "W",
+          "RDN310",
+          "RDN410"
+        ]
+      }
+    }
+  ]
+}

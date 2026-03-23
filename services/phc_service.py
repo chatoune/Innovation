@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import csv
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from sqlalchemy import inspect, text
 from sqlalchemy.engine import Engine
@@ -28,13 +28,6 @@ class PageResult:
     message: str
 
 
-@dataclass
-class SeriesResult:
-    labels: list[str]
-    values: list[float]
-    message: str
-
-
 class PHCService:
     TABLE = "CDV_ALL"
     SOURCE_TABLE_VALUE = "CDV_PHC"
@@ -44,42 +37,33 @@ class PHCService:
     COL_ARTICLE = "Article"
     COL_RS = "Raison sociale"
     COL_CDV = "Commande"
-
     COL_QTY = "Qté"
     COL_PRICE_NET = "Prix net"
 
     CALC_COL_ALIAS = "Montant_Qte_PrixNet"
     CALC_COL_HEADER = "Montant (Qté×Prix net)"
 
-    # Sous-familles RDN
-    RDN_SUB_BISTABLE = "Relais bistable"
-    RDN_SUB_VW = "RDN V/W"
-    RDN_SUB_OTHER = "RDN autres"
-
-    # Sous-familles BXNE
-    BXNE_SUB_ALIM = "Alimentations"
-    BXNE_SUB_LINEAR = "Alimentations linéaires"
-
-    # ---- Familles fusionnées ----
-    FAMILY_MERGE_LABEL_BX_LTMNT = "BXLT/MT/NT(I)"
-    FAMILY_MERGE_PREFIXES_BX_LTMNT = {"BXLT", "BXMT", "BXNT", "BXLTI", "BXMTI", "BXNTI"}
-
-    FAMILY_MERGE_LABEL_BX_NRCPRV = "BXNR/C/P/RV"
-    FAMILY_MERGE_PREFIXES_BX_NRCPRV = {"BXNR", "BXNRV", "BXNC", "BXNP"}
-
-    FAMILY_MERGE_LABEL_BX_NAI = "BXNA(I)"
-    FAMILY_MERGE_PREFIXES_BX_NAI_ROOTS = {"BXNA", "BXNAI"}
-    FAMILY_MERGE_SUBPREFIXES_BX_NAI = {"BXNA1", "BXNAI2"}
-
     def __init__(self, db: DatabaseManager) -> None:
         self._db = db
 
-    # ---------- Config stockée dans la base DATA ----------
     def config_ready(self) -> bool:
         engine = self._db.engine
         if engine is None:
             return False
         return self._table_exists(engine, self.RULES_TABLE)
+
+    def has_persisted_rules(self) -> bool:
+        engine = self._db.engine
+        if engine is None or not self.config_ready():
+            return False
+        try:
+            with engine.connect() as conn:
+                count = conn.execute(
+                    text(f'SELECT COUNT(*) FROM {self._q(self.RULES_TABLE)}')
+                ).scalar_one()
+            return int(count or 0) > 0
+        except Exception:
+            return False
 
     def get_all_rules_raw(self) -> list[dict[str, Any]]:
         engine = self._db.engine
@@ -87,8 +71,8 @@ class PHCService:
             return []
 
         sql = text(
-            f"SELECT family, subfamily, enabled, priority, "
-            f"startswith_any, contains_any, not_startswith_any, not_contains_any "
+            f"SELECT id, family, subfamily, enabled, priority, "
+            f"regex_pattern, contains_any, not_contains_any "
             f"FROM {self._q(self.RULES_TABLE)} "
             f"ORDER BY priority DESC, family ASC, subfamily ASC, id ASC"
         )
@@ -101,19 +85,173 @@ class PHCService:
             for row in rows:
                 out.append(
                     {
-                        "family": "" if row[0] is None else str(row[0]).strip(),
-                        "subfamily": "" if row[1] is None else str(row[1]).strip(),
-                        "enabled": int(row[2] or 0),
-                        "priority": int(row[3] or 0),
+                        "id": int(row[0]),
+                        "family": "" if row[1] is None else str(row[1]).strip(),
+                        "subfamily": "" if row[2] is None else str(row[2]).strip(),
+                        "enabled": int(row[3] or 0),
+                        "priority": int(row[4] or 0),
                         "criteria": {
-                            "startswith_any": self._csv_to_list(row[4]),
-                            "contains_any": self._csv_to_list(row[5]),
-                            "not_startswith_any": self._csv_to_list(row[6]),
+                            "regex_pattern": "" if row[5] is None else str(row[5]).strip(),
+                            "contains_any": self._csv_to_list(row[6]),
                             "not_contains_any": self._csv_to_list(row[7]),
                         },
                     }
                 )
-            return out
+
+            if out:
+                return out
+
+            return self.build_default_rules_from_articles()
+        except Exception:
+            return []
+
+    def save_rule(
+        self,
+        *,
+        rule_id: int | None,
+        family: str,
+        subfamily: str,
+        enabled: bool,
+        priority: int,
+        regex_pattern: str,
+        contains_any: list[str],
+        not_contains_any: list[str],
+    ) -> tuple[bool, str]:
+        engine = self._db.engine
+        if engine is None:
+            return False, "Aucune base DATA configurée."
+        if not self.config_ready():
+            return False, "Table de configuration PHC non disponible."
+
+        family = family.strip()
+        subfamily = subfamily.strip()
+        regex_pattern = regex_pattern.strip()
+
+        if not family:
+            return False, "Le champ Famille est obligatoire."
+        if not regex_pattern:
+            return False, "Le champ Expression régulière est obligatoire."
+
+        try:
+            re.compile(regex_pattern)
+        except re.error as e:
+            return False, f"Expression régulière invalide : {e}"
+
+        payload = {
+            "family": family,
+            "subfamily": subfamily,
+            "enabled": 1 if enabled else 0,
+            "priority": int(priority),
+            "regex_pattern": regex_pattern,
+            "contains_any": self._list_to_csv(contains_any),
+            "not_contains_any": self._list_to_csv(not_contains_any),
+        }
+
+        try:
+            with engine.begin() as conn:
+                if rule_id is None:
+                    conn.execute(
+                        text(
+                            f"INSERT INTO {self._q(self.RULES_TABLE)} "
+                            f"(family, subfamily, enabled, priority, regex_pattern, contains_any, not_contains_any) "
+                            f"VALUES (:family, :subfamily, :enabled, :priority, :regex_pattern, :contains_any, :not_contains_any)"
+                        ),
+                        payload,
+                    )
+                    return True, "Règle créée."
+                conn.execute(
+                    text(
+                        f"UPDATE {self._q(self.RULES_TABLE)} "
+                        f"SET family = :family, "
+                        f"subfamily = :subfamily, "
+                        f"enabled = :enabled, "
+                        f"priority = :priority, "
+                        f"regex_pattern = :regex_pattern, "
+                        f"contains_any = :contains_any, "
+                        f"not_contains_any = :not_contains_any, "
+                        f"updated_at = CURRENT_TIMESTAMP "
+                        f"WHERE id = :rule_id"
+                    ),
+                    {**payload, "rule_id": int(rule_id)},
+                )
+            return True, "Règle mise à jour."
+        except Exception as e:
+            return False, f"Erreur enregistrement règle : {e}"
+
+    def delete_rule(self, rule_id: int) -> tuple[bool, str]:
+        engine = self._db.engine
+        if engine is None:
+            return False, "Aucune base DATA configurée."
+        if not self.config_ready():
+            return False, "Table de configuration PHC non disponible."
+
+        try:
+            with engine.begin() as conn:
+                conn.execute(
+                    text(f"DELETE FROM {self._q(self.RULES_TABLE)} WHERE id = :rule_id"),
+                    {"rule_id": int(rule_id)},
+                )
+            return True, "Règle supprimée."
+        except Exception as e:
+            return False, f"Erreur suppression règle : {e}"
+
+    def build_default_rules_from_articles(self) -> list[dict[str, Any]]:
+        engine = self._db.engine
+        if engine is None:
+            return []
+
+        ok, _msg = self.is_available()
+        if not ok:
+            return []
+
+        try:
+            available_cols = self._get_table_columns(engine, self.TABLE)
+            if self.COL_ARTICLE not in available_cols or self.COL_SOURCE not in available_cols:
+                return []
+
+            src_expr = f"TRIM(UPPER(CAST({self._q(self.COL_SOURCE)} AS TEXT) || ''))"
+            sql = text(
+                f"SELECT {self._q(self.COL_ARTICLE)} AS article "
+                f"FROM {self._q(self.TABLE)} "
+                f"WHERE {src_expr} = :src"
+            )
+
+            seen: set[str] = set()
+            rules: list[dict[str, Any]] = []
+
+            with engine.connect() as conn:
+                result = conn.execute(sql, {"src": self.SOURCE_TABLE_VALUE})
+                while True:
+                    chunk = result.fetchmany(5000)
+                    if not chunk:
+                        break
+                    for (article,) in chunk:
+                        a = "" if article is None else str(article).strip()
+                        if not a:
+                            continue
+                        fam = self._family_f1(a)
+                        if not fam or fam in seen:
+                            continue
+                        seen.add(fam)
+                        rules.append(
+                            {
+                                "id": None,
+                                "family": fam,
+                                "subfamily": "",
+                                "enabled": 1,
+                                "priority": self._default_priority_for(fam, ""),
+                                "criteria": self._default_criteria_for(fam, ""),
+                            }
+                        )
+
+            rules.sort(
+                key=lambda r: (
+                    -int(r.get("priority", 0)),
+                    str(r.get("family", "")).upper(),
+                    str(r.get("subfamily", "")).upper(),
+                )
+            )
+            return rules
         except Exception:
             return []
 
@@ -126,15 +264,128 @@ class PHCService:
                 "date_column": (date_col or "").strip(),
                 "rules": self.get_all_rules_raw(),
             }
-
             out_path = Path(filepath)
-            out_path.write_text(
-                json.dumps(payload, ensure_ascii=False, indent=2),
-                encoding="utf-8",
-            )
+            out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
             return True, f"Bundle JSON exporté : {out_path}"
         except Exception as e:
             return False, f"Erreur export bundle JSON : {e}"
+
+    def export_family_diagnostic_json(self, filepath: str | Path) -> tuple[bool, str]:
+        engine = self._db.engine
+        if engine is None:
+            return False, "Aucune base DATA configurée."
+        ok, msg = self.is_available()
+        if not ok:
+            return False, msg
+
+        try:
+            available_cols = self._get_table_columns(engine, self.TABLE)
+            if self.COL_ARTICLE not in available_cols or self.COL_SOURCE not in available_cols:
+                return False, "Colonnes Article/source_table manquantes."
+
+            src_expr = f"TRIM(UPPER(CAST({self._q(self.COL_SOURCE)} AS TEXT) || ''))"
+            sql = text(
+                f"SELECT {self._q(self.COL_ARTICLE)} AS article "
+                f"FROM {self._q(self.TABLE)} "
+                f"WHERE {src_expr} = :src"
+            )
+
+            rules = self.get_all_rules_raw()
+            article_families: dict[str, dict[str, Any]] = {}
+            unmatched_article_families: dict[str, dict[str, Any]] = {}
+
+            with engine.connect() as conn:
+                result = conn.execute(sql, {"src": self.SOURCE_TABLE_VALUE})
+                while True:
+                    chunk = result.fetchmany(5000)
+                    if not chunk:
+                        break
+                    for (article,) in chunk:
+                        a = "" if article is None else str(article).strip()
+                        if not a:
+                            continue
+
+                        match = self._find_best_rule_for_article(a, rules)
+                        if match is not None:
+                            fam = str(match.get("family", "")).strip()
+                            if not fam:
+                                continue
+                            entry = article_families.setdefault(
+                                fam,
+                                {
+                                    "family_root": fam,
+                                    "count": 0,
+                                    "examples": [],
+                                },
+                            )
+                            entry["count"] += 1
+                            if len(entry["examples"]) < 20 and a not in entry["examples"]:
+                                entry["examples"].append(a)
+                        else:
+                            raw_fam = self._family_f1(a)
+                            if not raw_fam:
+                                continue
+                            entry = unmatched_article_families.setdefault(
+                                raw_fam,
+                                {
+                                    "family_root": raw_fam,
+                                    "count": 0,
+                                    "examples": [],
+                                },
+                            )
+                            entry["count"] += 1
+                            if len(entry["examples"]) < 20 and a not in entry["examples"]:
+                                entry["examples"].append(a)
+
+            rule_families = sorted(
+                {str(rule.get("family", "")).strip() for rule in rules if str(rule.get("family", "")).strip()},
+                key=str.upper,
+            )
+
+            ok_opts, options, msg_opts = self.get_family_subfamily_options()
+            combo_options: list[dict[str, str]] = []
+            if ok_opts:
+                for display, fam, sub in options:
+                    combo_options.append(
+                        {
+                            "display": display,
+                            "family": fam,
+                            "subfamily": sub,
+                        }
+                    )
+
+            article_family_names = sorted(article_families.keys(), key=str.upper)
+            families_from_articles_not_in_rules = [f for f in article_family_names if f not in rule_families]
+            families_from_rules_not_in_articles = [f for f in rule_families if f not in article_family_names]
+
+            payload = {
+                "table": self.TABLE,
+                "source_table_value": self.SOURCE_TABLE_VALUE,
+                "rules_table": self.RULES_TABLE,
+                "rules_count": len(rules),
+                "combo_options_count": len(combo_options),
+                "article_families_count": len(article_families),
+                "combo_options_status": msg_opts if not ok_opts else "OK",
+                "rule_families": rule_families,
+                "combo_options": combo_options,
+                "rules": rules,
+                "article_families": sorted(
+                    list(article_families.values()),
+                    key=lambda x: str(x.get("family_root", "")).upper(),
+                ),
+                "unmatched_article_families": sorted(
+                    list(unmatched_article_families.values()),
+                    key=lambda x: str(x.get("family_root", "")).upper(),
+                ),
+                "families_from_articles_not_in_rules": families_from_articles_not_in_rules,
+                "families_from_rules_not_in_articles": families_from_rules_not_in_articles,
+            }
+
+            out_path = Path(filepath)
+            out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+            return True, f"Diagnostic familles exporté : {out_path}"
+        except Exception as e:
+            return False, f"Erreur export diagnostic familles : {e}"
 
     def import_bundle_json(self, filepath: str | Path) -> tuple[bool, str]:
         engine = self._db.engine
@@ -159,38 +410,41 @@ class PHCService:
             for rule in rules:
                 if not isinstance(rule, dict):
                     continue
+                criteria = self._normalize_criteria(rule.get("criteria", {}))
+                regex_pattern = str(criteria.get("regex_pattern", "")).strip()
+                if not regex_pattern:
+                    regex_pattern = self._legacy_prefixes_to_regex(criteria.get("startswith_any", []))
+                if not str(rule.get("family", "")).strip():
+                    continue
                 cleaned_rules.append(
                     {
                         "family": str(rule.get("family", "")).strip(),
                         "subfamily": str(rule.get("subfamily", "")).strip(),
                         "enabled": int(rule.get("enabled", 1) or 0),
                         "priority": int(rule.get("priority", 0) or 0),
-                        "criteria": self._normalize_criteria(rule.get("criteria", {})),
+                        "regex_pattern": regex_pattern,
+                        "contains_any": criteria.get("contains_any", []),
+                        "not_contains_any": criteria.get("not_contains_any", []),
                     }
                 )
 
-            delete_sql = text(f"DELETE FROM {self._q(self.RULES_TABLE)}")
-            insert_sql = text(
-                f"INSERT INTO {self._q(self.RULES_TABLE)} "
-                f"(family, subfamily, enabled, priority, startswith_any, contains_any, not_startswith_any, not_contains_any) "
-                f"VALUES (:family, :subfamily, :enabled, :priority, :startswith_any, :contains_any, :not_startswith_any, :not_contains_any)"
-            )
-
             with engine.begin() as conn:
-                conn.execute(delete_sql)
+                conn.execute(text(f"DELETE FROM {self._q(self.RULES_TABLE)}"))
                 for rule in cleaned_rules:
-                    criteria = rule["criteria"]
                     conn.execute(
-                        insert_sql,
+                        text(
+                            f"INSERT INTO {self._q(self.RULES_TABLE)} "
+                            f"(family, subfamily, enabled, priority, regex_pattern, contains_any, not_contains_any) "
+                            f"VALUES (:family, :subfamily, :enabled, :priority, :regex_pattern, :contains_any, :not_contains_any)"
+                        ),
                         {
                             "family": rule["family"],
                             "subfamily": rule["subfamily"],
                             "enabled": rule["enabled"],
                             "priority": rule["priority"],
-                            "startswith_any": self._list_to_csv(criteria.get("startswith_any", [])),
-                            "contains_any": self._list_to_csv(criteria.get("contains_any", [])),
-                            "not_startswith_any": self._list_to_csv(criteria.get("not_startswith_any", [])),
-                            "not_contains_any": self._list_to_csv(criteria.get("not_contains_any", [])),
+                            "regex_pattern": rule["regex_pattern"],
+                            "contains_any": self._list_to_csv(rule["contains_any"]),
+                            "not_contains_any": self._list_to_csv(rule["not_contains_any"]),
                         },
                     )
 
@@ -200,40 +454,6 @@ class PHCService:
         except Exception as e:
             return False, f"Erreur import bundle JSON : {e}"
 
-    @staticmethod
-    def _normalize_criteria(criteria: Any) -> dict[str, list[str]]:
-        if not isinstance(criteria, dict):
-            criteria = {}
-
-        def _norm_list(name: str) -> list[str]:
-            value = criteria.get(name, [])
-            if value is None:
-                return []
-            if isinstance(value, str):
-                value = [v.strip() for v in value.split(",")]
-            if not isinstance(value, list):
-                return []
-            return [str(v).strip() for v in value if str(v).strip()]
-
-        return {
-            "startswith_any": _norm_list("startswith_any"),
-            "contains_any": _norm_list("contains_any"),
-            "not_startswith_any": _norm_list("not_startswith_any"),
-            "not_contains_any": _norm_list("not_contains_any"),
-        }
-
-    @staticmethod
-    def _csv_to_list(value: Any) -> list[str]:
-        raw = "" if value is None else str(value)
-        if not raw.strip():
-            return []
-        return [item.strip() for item in raw.split(",") if item.strip()]
-
-    @staticmethod
-    def _list_to_csv(values: list[str]) -> str:
-        return ", ".join(str(v).strip() for v in values if str(v).strip())
-
-    # ---------- Availability / introspection ----------
     def is_available(self) -> tuple[bool, str]:
         engine = self._db.engine
         if engine is None:
@@ -271,7 +491,6 @@ class PHCService:
         except Exception as e:
             return False, [], f"Erreur inattendue: {e}"
 
-    # ---------- Family / subfamily options ----------
     def get_family_subfamily_options(self) -> tuple[bool, list[tuple[str, str, str]], str]:
         engine = self._db.engine
         if engine is None:
@@ -285,6 +504,7 @@ class PHCService:
             if self.COL_ARTICLE not in available_cols or self.COL_SOURCE not in available_cols:
                 return False, [], "Colonnes Article/source_table manquantes."
 
+            rules = self.get_all_rules_raw()
             src_expr = f"TRIM(UPPER(CAST({self._q(self.COL_SOURCE)} AS TEXT) || ''))"
             sql = text(
                 f"SELECT {self._q(self.COL_ARTICLE)} AS article "
@@ -292,7 +512,7 @@ class PHCService:
                 f"WHERE {src_expr} = :src"
             )
 
-            fam_to_subs: Dict[str, set[str]] = {}
+            fam_to_subs: dict[str, set[str]] = {}
             fam_seen: set[str] = set()
 
             with engine.connect() as conn:
@@ -305,24 +525,34 @@ class PHCService:
                         a = "" if article is None else str(article).strip()
                         if not a:
                             continue
-                        fam = self._family_f1(a)
+
+                        match = self._find_best_rule_for_article(a, rules)
+                        if match is None:
+                            continue
+
+                        fam = str(match.get("family", "")).strip()
+                        sub = str(match.get("subfamily", "")).strip()
+
                         if not fam:
                             continue
-                        fam_seen.add(fam)
 
-                        sub = self._subfamily_for(fam, a)
+                        fam_seen.add(fam)
                         if sub:
                             fam_to_subs.setdefault(fam, set()).add(sub)
 
+            for rule in rules:
+                fam = str(rule.get("family", "")).strip()
+                sub = str(rule.get("subfamily", "")).strip()
+                if fam:
+                    fam_seen.add(fam)
+                if fam and sub:
+                    fam_to_subs.setdefault(fam, set()).add(sub)
+
             families = sorted(fam_seen, key=str.upper)
-
-            options: list[tuple[str, str, str]] = []
-            options.append(("(Toutes familles)", "", ""))
-
+            options: list[tuple[str, str, str]] = [("(Toutes familles)", "", "")]
             for fam in families:
                 options.append((fam, fam, ""))
-                subs = sorted(list(fam_to_subs.get(fam, set())), key=str.upper)
-                for sub in subs:
+                for sub in sorted(list(fam_to_subs.get(fam, set())), key=str.upper):
                     options.append((f"    └ {sub}", fam, sub))
 
             return True, options, f"{len(families)} familles"
@@ -331,8 +561,12 @@ class PHCService:
         except Exception as e:
             return False, [], f"Erreur inattendue: {e}"
 
-    # ---------- Years ----------
-    def list_distinct_years_for_selection(self, date_column: str, family_root: str, subfamily: str) -> tuple[bool, list[str], str]:
+    def list_distinct_years_for_selection(
+        self,
+        date_column: str,
+        family_root: str,
+        subfamily: str,
+    ) -> tuple[bool, list[str], str]:
         engine = self._db.engine
         if engine is None:
             return False, [], "Aucun engine configuré."
@@ -348,37 +582,50 @@ class PHCService:
             available_cols = self._get_table_columns(engine, self.TABLE)
             if date_column not in available_cols:
                 return False, [], f"Colonne date introuvable : {date_column}"
+            if self.COL_ARTICLE not in available_cols:
+                return False, [], f"Colonne introuvable : {self.COL_ARTICLE}"
 
-            year_expr = self._year_expr(date_column)
-            where_sql, params = self._build_where_base(
-                available_cols=available_cols,
-                date_col=date_column,
-                years=None,
-                family_root=family_root,
-                subfamily=subfamily,
-            )
-
+            rules = self.get_all_rules_raw()
             sql = text(
-                f"SELECT DISTINCT {year_expr} AS y "
+                f"SELECT {self._q(self.COL_ARTICLE)} AS article, {self._q(date_column)} AS date_value "
                 f"FROM {self._q(self.TABLE)} "
-                f"{where_sql} "
-                f"AND y IS NOT NULL AND y != '' "
-                f"ORDER BY y DESC"
+                f"WHERE TRIM(UPPER(CAST({self._q(self.COL_SOURCE)} AS TEXT) || '')) = :src"
             )
 
+            years_found: set[str] = set()
             with engine.connect() as conn:
-                rows = conn.execute(sql, params).fetchall()
+                rows = conn.execute(sql, {"src": self.SOURCE_TABLE_VALUE}).fetchall()
 
-            years = [str(r[0]) for r in rows if r and r[0] is not None]
-            years = [y for y in years if len(y) == 4 and y.isdigit()]
+            selected_family = (family_root or "").strip()
+            selected_subfamily = (subfamily or "").strip()
+
+            for article, date_value in rows:
+                a = "" if article is None else str(article).strip()
+                if selected_family:
+                    match = self._find_best_rule_for_article(a, rules)
+                    if match is None:
+                        continue
+                    if str(match.get("family", "")).strip() != selected_family:
+                        continue
+                    if selected_subfamily and str(match.get("subfamily", "")).strip() != selected_subfamily:
+                        continue
+
+                year = self._extract_year(date_value)
+                if year:
+                    years_found.add(year)
+
+            years = sorted(years_found, reverse=True)
             return True, years, f"{len(years)} année(s)"
-        except SQLAlchemyError as e:
-            return False, [], f"Erreur SQLAlchemy: {e}"
         except Exception as e:
             return False, [], f"Erreur inattendue: {e}"
 
-    # ---------- Lines ----------
-    def list_lines(self, filters: PHCFilters, limit: int = 200, offset: int = 0, order_desc: bool = True) -> tuple[bool, Optional[PageResult], str]:
+    def list_lines(
+        self,
+        filters: PHCFilters,
+        limit: int = 200,
+        offset: int = 0,
+        order_desc: bool = True,
+    ) -> tuple[bool, Optional[PageResult], str]:
         engine = self._db.engine
         if engine is None:
             return False, None, "Aucun engine configuré."
@@ -397,203 +644,184 @@ class PHCService:
                 if c in available_cols:
                     cols_to_select.append(c)
 
-            calc_expr = None
-            if self.COL_QTY in available_cols and self.COL_PRICE_NET in available_cols:
-                calc_expr = (
-                    f"COALESCE(CAST({self._q(self.COL_QTY)} AS REAL), 0) "
-                    f"* COALESCE(CAST({self._q(self.COL_PRICE_NET)} AS REAL), 0)"
-                    f' AS "{self.CALC_COL_ALIAS}"'
-                )
+            if self.COL_ARTICLE not in cols_to_select:
+                return False, None, "Colonne Article indisponible."
 
-            where_sql, params = self._build_where_base(
-                available_cols=available_cols,
-                date_col=date_col,
-                years=filters.years,
-                family_root=filters.family_root,
-                subfamily=filters.subfamily,
-            )
-
-            order_sql = f" ORDER BY {self._q(date_col)} {'DESC' if order_desc else 'ASC'}"
             select_parts = [self._q(c) for c in cols_to_select]
-            if calc_expr is not None:
-                select_parts.append(calc_expr)
-
             sql = text(
                 f"SELECT {', '.join(select_parts)} "
                 f"FROM {self._q(self.TABLE)} "
-                f"{where_sql}"
-                f"{order_sql} "
-                f"LIMIT :limit OFFSET :offset"
+                f"WHERE TRIM(UPPER(CAST({self._q(self.COL_SOURCE)} AS TEXT) || '')) = :src"
             )
-            params["limit"] = int(max(1, limit))
-            params["offset"] = int(max(0, offset))
 
             with engine.connect() as conn:
-                rows = conn.execute(sql, params).fetchall()
+                rows = conn.execute(sql, {"src": self.SOURCE_TABLE_VALUE}).fetchall()
 
+            raw_rows = [list(r) for r in rows]
+            date_idx = cols_to_select.index(date_col)
+            article_idx = cols_to_select.index(self.COL_ARTICLE)
+            qty_idx = cols_to_select.index(self.COL_QTY) if self.COL_QTY in cols_to_select else -1
+            price_idx = cols_to_select.index(self.COL_PRICE_NET) if self.COL_PRICE_NET in cols_to_select else -1
+
+            filtered_rows: list[list[Any]] = []
+            selected_years = {y.strip() for y in (filters.years or []) if y and y.strip()}
+            selected_family = (filters.family_root or "").strip()
+            selected_subfamily = (filters.subfamily or "").strip()
+            rules = self.get_all_rules_raw()
+
+            for row in raw_rows:
+                article = "" if row[article_idx] is None else str(row[article_idx]).strip()
+
+                if selected_family:
+                    match = self._find_best_rule_for_article(article, rules)
+                    if match is None:
+                        continue
+                    if str(match.get("family", "")).strip() != selected_family:
+                        continue
+                    if selected_subfamily and str(match.get("subfamily", "")).strip() != selected_subfamily:
+                        continue
+
+                row_year = self._extract_year(row[date_idx])
+                if selected_years and row_year not in selected_years:
+                    continue
+
+                out_row = list(row)
+                if qty_idx >= 0 and price_idx >= 0:
+                    qty = self._safe_float(row[qty_idx])
+                    price = self._safe_float(row[price_idx])
+                    out_row.append(qty * price)
+
+                filtered_rows.append(out_row)
+
+            filtered_rows.sort(
+                key=lambda row: self._sortable_value(row[date_idx]),
+                reverse=order_desc,
+            )
+
+            page_rows = filtered_rows[offset:offset + max(1, limit)]
             out_columns = list(cols_to_select)
-            if calc_expr is not None:
+            if qty_idx >= 0 and price_idx >= 0:
                 out_columns.append(self.CALC_COL_HEADER)
 
-            return True, PageResult(columns=out_columns, rows=[list(r) for r in rows], message=f"{len(rows)} ligne(s)"), "OK"
+            return True, PageResult(columns=out_columns, rows=page_rows, message=f"{len(filtered_rows)} ligne(s)"), "OK"
         except SQLAlchemyError as e:
             return False, None, f"Erreur SQLAlchemy: {e}"
         except Exception as e:
             return False, None, f"Erreur inattendue: {e}"
 
-    def series_qty_distribution(self, filters: PHCFilters) -> tuple[bool, Optional[SeriesResult], str]:
-        engine = self._db.engine
-        if engine is None:
-            return False, None, "Aucun engine configuré."
-        ok, msg = self.is_available()
-        if not ok:
-            return False, None, msg
+    @staticmethod
+    def _normalize_criteria(criteria: Any) -> dict[str, Any]:
+        if not isinstance(criteria, dict):
+            criteria = {}
 
-        try:
-            available_cols = self._get_table_columns(engine, self.TABLE)
-            if self.COL_QTY not in available_cols:
-                return False, None, "Colonne Qté introuvable."
+        def _norm_list(name: str) -> list[str]:
+            value = criteria.get(name, [])
+            if value is None:
+                return []
+            if isinstance(value, str):
+                value = [v.strip() for v in value.split(",")]
+            if not isinstance(value, list):
+                return []
+            return [str(v).strip() for v in value if str(v).strip()]
 
-            date_col = (filters.date_column or "").strip()
-            if not date_col:
-                return False, None, "Colonne date vide."
+        return {
+            "regex_pattern": str(criteria.get("regex_pattern", "")).strip(),
+            "startswith_any": _norm_list("startswith_any"),
+            "contains_any": _norm_list("contains_any"),
+            "not_contains_any": _norm_list("not_contains_any"),
+        }
 
-            where_sql, params = self._build_where_base(
-                available_cols=available_cols,
-                date_col=date_col,
-                years=filters.years,
-                family_root=filters.family_root,
-                subfamily=filters.subfamily,
-            )
+    @staticmethod
+    def _csv_to_list(value: Any) -> list[str]:
+        raw = "" if value is None else str(value)
+        if not raw.strip():
+            return []
+        return [item.strip() for item in raw.split(",") if item.strip()]
 
-            qty_expr = f"CAST({self._q(self.COL_QTY)} AS REAL)"
-            bucket_expr = (
-                f"CASE "
-                f"WHEN {qty_expr} <= 1 THEN '0-1' "
-                f"WHEN {qty_expr} <= 5 THEN '2-5' "
-                f"WHEN {qty_expr} <= 10 THEN '6-10' "
-                f"WHEN {qty_expr} <= 20 THEN '11-20' "
-                f"WHEN {qty_expr} <= 50 THEN '21-50' "
-                f"WHEN {qty_expr} <= 100 THEN '51-100' "
-                f"ELSE '100+' END"
-            )
+    @staticmethod
+    def _list_to_csv(values: list[str]) -> str:
+        return ", ".join(str(v).strip() for v in values if str(v).strip())
 
-            sql = text(
-                f"SELECT {bucket_expr} AS bucket, COUNT(*) AS n "
-                f"FROM {self._q(self.TABLE)} "
-                f"{where_sql} "
-                f"GROUP BY bucket"
-            )
+    @staticmethod
+    def _legacy_prefixes_to_regex(prefixes: list[str]) -> str:
+        tokens = [re.escape(str(v).strip()) for v in prefixes if str(v).strip()]
+        if not tokens:
+            return ""
+        if len(tokens) == 1:
+            return f"^{tokens[0]}"
+        return "^(?:" + "|".join(tokens) + ")"
 
-            with engine.connect() as conn:
-                rows = conn.execute(sql, params).fetchall()
+    def _default_priority_for(self, family: str, subfamily: str) -> int:
+        return 200 if subfamily else 10
 
-            order = ["0-1", "2-5", "6-10", "11-20", "21-50", "51-100", "100+"]
-            counts = {str(r[0]): float(r[1]) for r in rows}
-            labels = [b for b in order if b in counts]
-            values = [counts[b] for b in labels]
-            return True, SeriesResult(labels=labels, values=values, message="OK"), "OK"
+    def _default_criteria_for(self, family: str, subfamily: str) -> dict[str, Any]:
+        token = (subfamily or family).strip()
+        return {
+            "regex_pattern": f"^{re.escape(token)}" if token else "",
+            "contains_any": [],
+            "not_contains_any": [],
+        }
 
-        except SQLAlchemyError as e:
-            return False, None, f"Erreur SQLAlchemy: {e}"
-        except Exception as e:
-            return False, None, f"Erreur inattendue: {e}"
+    def _find_best_rule_for_article(
+        self,
+        article: str,
+        rules: list[dict[str, Any]],
+    ) -> dict[str, Any] | None:
+        a = (article or "").strip()
+        if not a:
+            return None
 
-    # ================= Internals =================
-    def _build_where_base(self, available_cols: list[str], date_col: str, years: list[str] | None, family_root: str, subfamily: str) -> tuple[str, dict[str, Any]]:
-        clauses: list[str] = []
-        params: dict[str, Any] = {}
+        best_rule: dict[str, Any] | None = None
+        best_score: tuple[int, int, int, str, str] | None = None
 
-        src_expr = f"TRIM(UPPER(CAST({self._q(self.COL_SOURCE)} AS TEXT) || ''))"
-        clauses.append(f"{src_expr} = :src")
-        params["src"] = self.SOURCE_TABLE_VALUE
+        for rule in rules:
+            if int(rule.get("enabled", 1) or 0) != 1:
+                continue
 
-        fam = (family_root or "").strip()
-        sub = (subfamily or "").strip()
-        article_text = f"CAST({self._q(self.COL_ARTICLE)} AS TEXT)"
+            criteria = self._normalize_criteria(rule.get("criteria", {}))
+            if not self._rule_matches_article(a, criteria):
+                continue
 
-        if fam and self.COL_ARTICLE in available_cols:
-            if fam == self.FAMILY_MERGE_LABEL_BX_LTMNT:
-                ors = []
-                for p in sorted(self.FAMILY_MERGE_PREFIXES_BX_LTMNT):
-                    key = f"bxlt_{p}"
-                    params[key] = f"{p}%"
-                    ors.append(f"{article_text} LIKE :{key}")
-                clauses.append("(" + " OR ".join(ors) + ")")
+            priority = int(rule.get("priority", 0) or 0)
+            regex_pattern = str(criteria.get("regex_pattern", "")).strip()
+            regex_len = len(regex_pattern)
+            contains_count = len(criteria.get("contains_any", []) or [])
+            family = str(rule.get("family", "")).strip().upper()
+            subfamily = str(rule.get("subfamily", "")).strip().upper()
 
-            elif fam == self.FAMILY_MERGE_LABEL_BX_NRCPRV:
-                if sub:
-                    params["bxnrc_sub"] = f"{sub}%"
-                    clauses.append(f"{article_text} LIKE :bxnrc_sub")
-                else:
-                    ors = []
-                    for p in sorted(self.FAMILY_MERGE_PREFIXES_BX_NRCPRV):
-                        key = f"bxnrc_{p}"
-                        params[key] = f"{p}%"
-                        ors.append(f"{article_text} LIKE :{key}")
-                    clauses.append("(" + " OR ".join(ors) + ")")
+            score = (priority, regex_len, contains_count, family, subfamily)
+            if best_score is None or score > best_score:
+                best_score = score
+                best_rule = rule
 
-            elif fam == self.FAMILY_MERGE_LABEL_BX_NAI:
-                if sub:
-                    params["bxnai_sub"] = f"{sub}%"
-                    clauses.append(f"{article_text} LIKE :bxnai_sub")
-                else:
-                    ors = []
-                    for p in sorted(self.FAMILY_MERGE_PREFIXES_BX_NAI_ROOTS):
-                        key = f"bxnai_{p}"
-                        params[key] = f"{p}%"
-                        ors.append(f"{article_text} LIKE :{key}")
-                    clauses.append("(" + " OR ".join(ors) + ")")
+        return best_rule
 
-            elif fam == "BXNE":
-                if sub == self.BXNE_SUB_ALIM:
-                    ors = []
-                    for d in ["0", "1", "2", "3"]:
-                        key = f"bxne_a{d}"
-                        params[key] = f"BXNE{d}%"
-                        ors.append(f"{article_text} LIKE :{key}")
-                    clauses.append("(" + " OR ".join(ors) + ")")
-                elif sub == self.BXNE_SUB_LINEAR:
-                    ors = []
-                    for d in ["4", "5", "6", "7"]:
-                        key = f"bxne_l{d}"
-                        params[key] = f"BXNE{d}%"
-                        ors.append(f"{article_text} LIKE :{key}")
-                    clauses.append("(" + " OR ".join(ors) + ")")
-                else:
-                    params["famroot"] = "BXNE%"
-                    clauses.append(f"{article_text} LIKE :famroot")
+    def _rule_matches_article(self, article: str, criteria: dict[str, Any]) -> bool:
+        a = (article or "").strip()
+        if not a:
+            return False
 
-            else:
-                params["famroot"] = f"{fam}%"
-                clauses.append(f"{article_text} LIKE :famroot")
+        regex_pattern = str(criteria.get("regex_pattern", "")).strip()
+        if regex_pattern:
+            try:
+                if re.search(regex_pattern, a, flags=re.IGNORECASE) is None:
+                    return False
+            except re.error:
+                return False
 
-                if fam == "RDN" and sub:
-                    if sub == self.RDN_SUB_BISTABLE:
-                        clauses.append(f"({article_text} LIKE 'RDN310%' OR {article_text} LIKE 'RDN410%')")
-                    elif sub == self.RDN_SUB_VW:
-                        clauses.append(f"({article_text} LIKE 'RDN%V%' OR {article_text} LIKE 'RDN%W%')")
-                    elif sub == self.RDN_SUB_OTHER:
-                        clauses.append(
-                            f"({article_text} LIKE 'RDN%' "
-                            f"AND {article_text} NOT LIKE 'RDN310%' "
-                            f"AND {article_text} NOT LIKE 'RDN410%' "
-                            f"AND {article_text} NOT LIKE 'RDN%V%' "
-                            f"AND {article_text} NOT LIKE 'RDN%W%')"
-                        )
+        contains_any = [str(v).strip() for v in criteria.get("contains_any", []) if str(v).strip()]
+        if contains_any:
+            article_upper = a.upper()
+            if not any(token.upper() in article_upper for token in contains_any):
+                return False
 
-        years_list = years or []
-        years_list = [y.strip() for y in years_list if y and y.strip()]
-        if date_col and date_col in available_cols and years_list:
-            year_expr = self._year_expr(date_col)
-            in_params: list[str] = []
-            for i, y in enumerate(years_list):
-                key = f"y{i}"
-                params[key] = y
-                in_params.append(f":{key}")
-            clauses.append(f"{year_expr} IN ({', '.join(in_params)})")
+        not_contains_any = [str(v).strip() for v in criteria.get("not_contains_any", []) if str(v).strip()]
+        if not_contains_any:
+            article_upper = a.upper()
+            if any(token.upper() in article_upper for token in not_contains_any):
+                return False
 
-        return "WHERE " + " AND ".join(clauses), params
+        return bool(regex_pattern or contains_any or not_contains_any)
 
     def _table_exists(self, engine: Engine, table: str) -> bool:
         return table in inspect(engine).get_table_names()
@@ -607,69 +835,33 @@ class PHCService:
         safe = identifier.replace('"', '""')
         return f'"{safe}"'
 
-    def _year_expr(self, date_col: str) -> str:
-        q = self._q(date_col)
-        return (
-            f"CASE "
-            f"WHEN substr({q}, 1, 4) GLOB '[0-9][0-9][0-9][0-9]' THEN substr({q}, 1, 4) "
-            f"WHEN substr({q}, -4) GLOB '[0-9][0-9][0-9][0-9]' THEN substr({q}, -4) "
-            f"ELSE NULL END"
-        )
+    @staticmethod
+    def _extract_year(value: Any) -> str:
+        text_value = "" if value is None else str(value).strip()
+        if len(text_value) >= 4 and text_value[:4].isdigit():
+            return text_value[:4]
+        if len(text_value) >= 4 and text_value[-4:].isdigit():
+            return text_value[-4:]
+        return ""
+
+    @staticmethod
+    def _sortable_value(value: Any) -> str:
+        return "" if value is None else str(value)
+
+    @staticmethod
+    def _safe_float(value: Any) -> float:
+        if value is None:
+            return 0.0
+        try:
+            return float(str(value).replace(",", "."))
+        except Exception:
+            return 0.0
 
     def _family_f1(self, article: str) -> str:
         s = (article or "").strip()
         if not s:
             return ""
-        prefix = ""
         for i, ch in enumerate(s):
             if ch.isdigit():
-                prefix = s[:i] if i > 0 else "<Débute par chiffre>"
-                break
-        if not prefix:
-            prefix = s
-
-        up = prefix.upper()
-        if up in self.FAMILY_MERGE_PREFIXES_BX_LTMNT:
-            return self.FAMILY_MERGE_LABEL_BX_LTMNT
-        if up in self.FAMILY_MERGE_PREFIXES_BX_NRCPRV:
-            return self.FAMILY_MERGE_LABEL_BX_NRCPRV
-        if up in self.FAMILY_MERGE_PREFIXES_BX_NAI_ROOTS:
-            return self.FAMILY_MERGE_LABEL_BX_NAI
-        return prefix
-
-    def _subfamily_for(self, family_root: str, article: str) -> str:
-        a = (article or "").strip().upper()
-
-        if family_root == "RDN":
-            if a.startswith("RDN310") or a.startswith("RDN410"):
-                return self.RDN_SUB_BISTABLE
-            if a.startswith("RDN") and ("V" in a or "W" in a):
-                return self.RDN_SUB_VW
-            if a.startswith("RDN"):
-                return self.RDN_SUB_OTHER
-            return ""
-
-        if family_root == self.FAMILY_MERGE_LABEL_BX_NRCPRV:
-            pref = ""
-            for i, ch in enumerate(a):
-                if ch.isdigit():
-                    pref = a[:i] if i > 0 else ""
-                    break
-            if not pref:
-                pref = a
-            return pref if pref in self.FAMILY_MERGE_PREFIXES_BX_NRCPRV else ""
-
-        if family_root == self.FAMILY_MERGE_LABEL_BX_NAI:
-            for sub in self.FAMILY_MERGE_SUBPREFIXES_BX_NAI:
-                if a.startswith(sub):
-                    return sub
-            return ""
-
-        if family_root == "BXNE":
-            if any(a.startswith(f"BXNE{d}") for d in ["0", "1", "2", "3"]):
-                return self.BXNE_SUB_ALIM
-            if any(a.startswith(f"BXNE{d}") for d in ["4", "5", "6", "7"]):
-                return self.BXNE_SUB_LINEAR
-            return ""
-
-        return ""
+                return s[:i] if i > 0 else "<Débute par chiffre>"
+        return s

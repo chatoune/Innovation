@@ -3,25 +3,28 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QStandardItemModel, QStandardItem
+from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
+    QCheckBox,
+    QComboBox,
+    QFileDialog,
+    QGridLayout,
+    QGroupBox,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
+    QLineEdit,
+    QMessageBox,
     QPushButton,
+    QSizePolicy,
+    QSpinBox,
     QTableWidget,
     QTableWidgetItem,
-    QFileDialog,
-    QMessageBox,
-    QSplitter,
-    QComboBox,
+    QVBoxLayout,
+    QWidget,
 )
 
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-
-from services.phc_service import PHCService, PHCFilters
+from services.phc_service import PHCFilters, PHCService
 
 
 class MultiSelectComboBox(QComboBox):
@@ -47,7 +50,7 @@ class MultiSelectComboBox(QComboBox):
 
     def selected_items(self) -> list[str]:
         model: QStandardItemModel = self.model()
-        out = []
+        out: list[str] = []
         for r in range(model.rowCount()):
             item = model.item(r)
             if item.checkState() == Qt.Checked:
@@ -79,32 +82,32 @@ class PHCPanel(QWidget):
         self._service = service
         self._offset = 0
         self._did_init = False
+        self._selected_rule_id: int | None = None
+        self._selected_rule_is_generated = False
 
-        # --- Rules table ---
-        self._rules_title = QLabel("Règles famille / sous-famille : -")
-        self._rules_table = QTableWidget(0, 6)
-        self._rules_table.setHorizontalHeaderLabels(["Famille", "Sous-famille", "Enabled", "Priority", "StartsWith", "Contains/Not"])
-        self._rules_table.setEditTriggers(QTableWidget.NoEditTriggers)
-
-        self._export_bundle_btn = QPushButton("Exporter bundle (règles+articles)")
+        self._export_bundle_btn = QPushButton("Exporter bundle")
         self._export_bundle_btn.clicked.connect(self._export_bundle)
 
-        self._import_bundle_btn = QPushButton("Importer bundle (mise à jour règles)")
+        self._import_bundle_btn = QPushButton("Importer bundle")
         self._import_bundle_btn.clicked.connect(self._import_bundle)
 
-        self._refresh_rules_btn = QPushButton("↻ Règles")
+        self._diagnostic_btn = QPushButton("Diagnostic familles")
+        self._diagnostic_btn.clicked.connect(self._export_family_diagnostic)
+
+        self._refresh_rules_btn = QPushButton("Règles")
         self._refresh_rules_btn.clicked.connect(self._refresh_rules_ui)
 
-        # --- Famille / sous-famille combo ---
         self._family_combo = QComboBox()
         self._family_combo.currentIndexChanged.connect(self._on_family_changed)
+        self._family_combo.setMinimumWidth(220)
 
-        # --- TIMESTAMP date columns ---
         self._date_col_combo = QComboBox()
         self._date_col_combo.currentIndexChanged.connect(self._on_date_changed)
+        self._date_col_combo.setMinimumWidth(180)
 
-        # --- Years multi-select ---
         self._years_combo = MultiSelectComboBox(placeholder="Années (toutes)")
+        self._years_combo.setMinimumWidth(220)
+
         self._refresh_years_btn = QPushButton("↻")
         self._refresh_years_btn.clicked.connect(lambda: self._reload_years(preserve=True))
 
@@ -114,12 +117,75 @@ class PHCPanel(QWidget):
         self._reset_btn = QPushButton("Reset années")
         self._reset_btn.clicked.connect(self._reset)
 
-        # --- Chart ---
-        self._fig = Figure(figsize=(6, 4))
-        self._ax = self._fig.add_subplot(111)
-        self._canvas = FigureCanvas(self._fig)
+        self._rules_title = QLabel("Règles famille / sous-famille : -")
 
-        # --- Lines table ---
+        self._rules_table = QTableWidget(0, 7)
+        self._rules_table.setHorizontalHeaderLabels(
+            [
+                "Famille",
+                "Sous-famille",
+                "Activée",
+                "Priorité",
+                "Expression régulière",
+                "Contient",
+                "Ne contient pas",
+            ]
+        )
+        self._rules_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self._rules_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self._rules_table.setSelectionMode(QTableWidget.SingleSelection)
+        self._rules_table.verticalHeader().setVisible(False)
+        self._rules_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self._rules_table.setMaximumHeight(240)
+        self._rules_table.horizontalHeader().setStretchLastSection(True)
+        self._rules_table.itemSelectionChanged.connect(self._on_rule_selected)
+
+        self._rule_form_box = QGroupBox("Édition de règle")
+        form = QGridLayout(self._rule_form_box)
+
+        self._rule_family_edit = QLineEdit()
+        self._rule_subfamily_edit = QLineEdit()
+        self._rule_enabled_check = QCheckBox("Activée")
+        self._rule_enabled_check.setChecked(True)
+        self._rule_priority_spin = QSpinBox()
+        self._rule_priority_spin.setRange(-100000, 100000)
+        self._rule_regex_edit = QLineEdit()
+        self._rule_contains_edit = QLineEdit()
+        self._rule_not_contains_edit = QLineEdit()
+
+        form.addWidget(QLabel("Famille"), 0, 0)
+        form.addWidget(self._rule_family_edit, 0, 1)
+        form.addWidget(QLabel("Sous-famille"), 0, 2)
+        form.addWidget(self._rule_subfamily_edit, 0, 3)
+        form.addWidget(self._rule_enabled_check, 0, 4)
+
+        form.addWidget(QLabel("Priorité"), 1, 0)
+        form.addWidget(self._rule_priority_spin, 1, 1)
+        form.addWidget(QLabel("Expression régulière"), 1, 2)
+        form.addWidget(self._rule_regex_edit, 1, 3, 1, 2)
+
+        form.addWidget(QLabel("Contient (csv)"), 2, 0)
+        form.addWidget(self._rule_contains_edit, 2, 1, 1, 2)
+        form.addWidget(QLabel("Ne contient pas (csv)"), 2, 3)
+        form.addWidget(self._rule_not_contains_edit, 2, 4)
+
+        buttons = QHBoxLayout()
+        self._rule_new_btn = QPushButton("Nouvelle")
+        self._rule_new_btn.clicked.connect(self._clear_rule_form)
+
+        self._rule_save_btn = QPushButton("Enregistrer")
+        self._rule_save_btn.clicked.connect(self._save_rule)
+
+        self._rule_delete_btn = QPushButton("Supprimer")
+        self._rule_delete_btn.clicked.connect(self._delete_rule)
+
+        buttons.addWidget(self._rule_new_btn)
+        buttons.addWidget(self._rule_save_btn)
+        buttons.addWidget(self._rule_delete_btn)
+        buttons.addStretch()
+
+        form.addLayout(buttons, 3, 0, 1, 5)
+
         self._title = QLabel("CDV_PHC - Lignes (niveau article) : -")
         self._title.setAlignment(Qt.AlignLeft)
 
@@ -127,6 +193,10 @@ class PHCPanel(QWidget):
         self._table.setEditTriggers(QTableWidget.NoEditTriggers)
         self._table.setSelectionBehavior(QTableWidget.SelectRows)
         self._table.setSelectionMode(QTableWidget.SingleSelection)
+        self._table.verticalHeader().setVisible(False)
+        self._table.setAlternatingRowColors(True)
+        self._table.horizontalHeader().setStretchLastSection(False)
+        self._table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self._prev_btn = QPushButton("◀")
         self._next_btn = QPushButton("▶")
@@ -134,42 +204,29 @@ class PHCPanel(QWidget):
         self._next_btn.clicked.connect(self._next)
         self._page_label = QLabel("Page : -")
 
-        # Layout
         root = QVBoxLayout(self)
 
-        # Top: rules controls
-        rules_bar = QHBoxLayout()
-        rules_bar.addWidget(self._export_bundle_btn)
-        rules_bar.addWidget(self._import_bundle_btn)
-        rules_bar.addWidget(self._refresh_rules_btn)
-        rules_bar.addStretch()
-        root.addLayout(rules_bar)
+        top_bar = QHBoxLayout()
+        top_bar.addWidget(self._export_bundle_btn)
+        top_bar.addWidget(self._import_bundle_btn)
+        top_bar.addWidget(self._diagnostic_btn)
+        top_bar.addWidget(self._refresh_rules_btn)
+        top_bar.addSpacing(16)
+        top_bar.addWidget(QLabel("Famille:"))
+        top_bar.addWidget(self._family_combo)
+        top_bar.addWidget(QLabel("Date (TIMESTAMP):"))
+        top_bar.addWidget(self._date_col_combo)
+        top_bar.addWidget(QLabel("Années:"))
+        top_bar.addWidget(self._years_combo)
+        top_bar.addWidget(self._refresh_years_btn)
+        top_bar.addWidget(self._apply_btn)
+        top_bar.addWidget(self._reset_btn)
+        top_bar.addStretch()
+        root.addLayout(top_bar)
 
         root.addWidget(self._rules_title)
-        root.addWidget(self._rules_table, stretch=0)
-
-        # Filters bar
-        top = QHBoxLayout()
-        top.addWidget(QLabel("Famille:"))
-        top.addWidget(self._family_combo)
-
-        top.addWidget(QLabel("Date (TIMESTAMP):"))
-        top.addWidget(self._date_col_combo)
-
-        top.addWidget(QLabel("Années:"))
-        top.addWidget(self._years_combo)
-        top.addWidget(self._refresh_years_btn)
-
-        top.addWidget(self._apply_btn)
-        top.addWidget(self._reset_btn)
-        root.addLayout(top)
-
-        # Splitter: left table / right chart
-        split = QSplitter(Qt.Horizontal)
-
-        table_panel = QWidget()
-        table_layout = QVBoxLayout(table_panel)
-        table_layout.setContentsMargins(0, 0, 0, 0)
+        root.addWidget(self._rules_table)
+        root.addWidget(self._rule_form_box)
 
         pager = QHBoxLayout()
         pager.addWidget(self._prev_btn)
@@ -177,25 +234,12 @@ class PHCPanel(QWidget):
         pager.addWidget(self._next_btn)
         pager.addStretch()
 
-        table_layout.addWidget(self._title)
-        table_layout.addLayout(pager)
-        table_layout.addWidget(self._table, stretch=1)
-
-        chart_panel = QWidget()
-        chart_layout = QVBoxLayout(chart_panel)
-        chart_layout.setContentsMargins(0, 0, 0, 0)
-        chart_layout.addWidget(QLabel("Répartition des quantités demandées (CDV_PHC)"))
-        chart_layout.addWidget(self._canvas, stretch=1)
-
-        split.addWidget(table_panel)
-        split.addWidget(chart_panel)
-        split.setSizes([850, 450])
-
-        root.addWidget(split, stretch=1)
+        root.addWidget(self._title)
+        root.addLayout(pager)
+        root.addWidget(self._table, stretch=1)
 
         self.reload_all()
 
-    # ---------- Init / reload ----------
     def _ensure_initialized(self) -> None:
         if self._did_init:
             return
@@ -204,32 +248,27 @@ class PHCPanel(QWidget):
         if not ok:
             return
 
-        if not self._service.config_ready():
-            self._rules_title.setText("Règles famille / sous-famille : table de configuration absente dans la base DATA")
-            self._init_date_columns()
-            self._did_init = True
-            return
-
-        self._init_family_combo()
         self._init_date_columns()
         self._refresh_rules_ui()
         self._reload_years(preserve=False)
         self._did_init = True
 
-    def _init_family_combo(self) -> None:
-        ok, options, msg = self._service.get_family_subfamily_options()
+    def _init_family_combo(self, preferred: tuple[str, str] | None = None) -> None:
+        ok, options, _msg = self._service.get_family_subfamily_options()
         self._family_combo.blockSignals(True)
         try:
-            prev = self._family_combo.currentData()
+            prev = preferred if preferred is not None else self._family_combo.currentData()
             self._family_combo.clear()
             if not ok:
                 self._family_combo.addItem("(indisponible)", ("", ""))
                 return
             for display, fam, sub in options:
                 self._family_combo.addItem(display, (fam, sub))
-            if prev is not None:
+
+            target = prev if isinstance(prev, tuple) and len(prev) == 2 else None
+            if target is not None:
                 for i in range(self._family_combo.count()):
-                    if self._family_combo.itemData(i) == prev:
+                    if self._family_combo.itemData(i) == target:
                         self._family_combo.setCurrentIndex(i)
                         break
         finally:
@@ -266,44 +305,131 @@ class PHCPanel(QWidget):
             subfamily=sub,
         )
 
-    # ---------- Rules UI ----------
-    def _refresh_rules_ui(self) -> None:
+    def _refresh_rules_ui(self, preferred_family_selection: tuple[str, str] | None = None) -> None:
         if not self._service.config_ready():
             self._rules_title.setText("Règles famille / sous-famille : table de configuration absente dans la base DATA")
             self._rules_table.setRowCount(0)
+            self._init_family_combo(preferred_family_selection)
+            self._clear_rule_form()
             return
 
         rules = self._service.get_all_rules_raw()
-        self._rules_title.setText(f"Règles famille / sous-famille : {len(rules)} règle(s)")
+        persisted = self._service.has_persisted_rules()
+        if persisted:
+            self._rules_title.setText(f"Règles famille / sous-famille : {len(rules)} règle(s) en base")
+        else:
+            self._rules_title.setText(f"Règles famille / sous-famille : {len(rules)} règle(s) générée(s) (table vide)")
+
         self._rules_table.setRowCount(len(rules))
-
         for r, rule in enumerate(rules):
-            fam = str(rule.get("family", ""))
-            sub = str(rule.get("subfamily", ""))
-            en = str(rule.get("enabled", 1))
-            pr = str(rule.get("priority", 0))
-            crit = rule.get("criteria", {}) or {}
-            sw = ",".join(crit.get("startswith_any", []) or [])
-            ct = ",".join(crit.get("contains_any", []) or [])
-            nsw = ",".join(crit.get("not_startswith_any", []) or [])
-            nct = ",".join(crit.get("not_contains_any", []) or [])
-            other = f"ct=[{ct}] nsw=[{nsw}] nct=[{nct}]"
+            criteria = rule.get("criteria", {}) or {}
+            self._rules_table.setItem(r, 0, QTableWidgetItem(str(rule.get("family", ""))))
+            self._rules_table.setItem(r, 1, QTableWidgetItem(str(rule.get("subfamily", ""))))
+            self._rules_table.setItem(r, 2, QTableWidgetItem(str(rule.get("enabled", 1))))
+            self._rules_table.setItem(r, 3, QTableWidgetItem(str(rule.get("priority", 0))))
+            self._rules_table.setItem(r, 4, QTableWidgetItem(str(criteria.get("regex_pattern", ""))))
+            self._rules_table.setItem(r, 5, QTableWidgetItem(", ".join(criteria.get("contains_any", []) or [])))
+            self._rules_table.setItem(r, 6, QTableWidgetItem(", ".join(criteria.get("not_contains_any", []) or [])))
 
-            self._rules_table.setItem(r, 0, QTableWidgetItem(fam))
-            self._rules_table.setItem(r, 1, QTableWidgetItem(sub))
-            self._rules_table.setItem(r, 2, QTableWidgetItem(en))
-            self._rules_table.setItem(r, 3, QTableWidgetItem(pr))
-            self._rules_table.setItem(r, 4, QTableWidgetItem(sw))
-            self._rules_table.setItem(r, 5, QTableWidgetItem(other))
+            self._rules_table.item(r, 0).setData(Qt.UserRole, rule.get("id"))
+            self._rules_table.item(r, 0).setData(Qt.UserRole + 1, rule)
 
         self._rules_table.resizeColumnsToContents()
+        self._init_family_combo(preferred_family_selection)
+        self._update_delete_button_state()
 
-        # refresh combo families too
-        self._init_family_combo()
+    def _parse_csv_line(self, value: str) -> list[str]:
+        return [item.strip() for item in value.split(",") if item.strip()]
+
+    def _clear_rule_form(self) -> None:
+        self._selected_rule_id = None
+        self._selected_rule_is_generated = False
+        self._rules_table.clearSelection()
+        self._rule_family_edit.setText("")
+        self._rule_subfamily_edit.setText("")
+        self._rule_enabled_check.setChecked(True)
+        self._rule_priority_spin.setValue(0)
+        self._rule_regex_edit.setText("")
+        self._rule_contains_edit.setText("")
+        self._rule_not_contains_edit.setText("")
+        self._update_delete_button_state()
+
+    def _on_rule_selected(self) -> None:
+        items = self._rules_table.selectedItems()
+        if not items:
+            self._clear_rule_form()
+            return
+
+        row = items[0].row()
+        anchor = self._rules_table.item(row, 0)
+        if anchor is None:
+            return
+
+        rule = anchor.data(Qt.UserRole + 1) or {}
+        criteria = rule.get("criteria", {}) or {}
+
+        rule_id = anchor.data(Qt.UserRole)
+        self._selected_rule_id = int(rule_id) if rule_id is not None else None
+        self._selected_rule_is_generated = self._selected_rule_id is None
+
+        self._rule_family_edit.setText(str(rule.get("family", "")))
+        self._rule_subfamily_edit.setText(str(rule.get("subfamily", "")))
+        self._rule_enabled_check.setChecked(int(rule.get("enabled", 1) or 0) == 1)
+        self._rule_priority_spin.setValue(int(rule.get("priority", 0) or 0))
+        self._rule_regex_edit.setText(str(criteria.get("regex_pattern", "")))
+        self._rule_contains_edit.setText(", ".join(criteria.get("contains_any", []) or []))
+        self._rule_not_contains_edit.setText(", ".join(criteria.get("not_contains_any", []) or []))
+        self._update_delete_button_state()
+
+    def _update_delete_button_state(self) -> None:
+        self._rule_delete_btn.setEnabled(self._selected_rule_id is not None and not self._selected_rule_is_generated)
+
+    def _save_rule(self) -> None:
+        target_selection = (
+            self._rule_family_edit.text().strip(),
+            self._rule_subfamily_edit.text().strip(),
+        )
+        ok, msg = self._service.save_rule(
+            rule_id=self._selected_rule_id if not self._selected_rule_is_generated else None,
+            family=target_selection[0],
+            subfamily=target_selection[1],
+            enabled=self._rule_enabled_check.isChecked(),
+            priority=self._rule_priority_spin.value(),
+            regex_pattern=self._rule_regex_edit.text(),
+            contains_any=self._parse_csv_line(self._rule_contains_edit.text()),
+            not_contains_any=self._parse_csv_line(self._rule_not_contains_edit.text()),
+        )
+        if ok:
+            QMessageBox.information(self, "Règles", msg)
+            self._refresh_rules_ui(target_selection)
+            self._reload_years(preserve=True)
+            self.reload_all()
+            self._clear_rule_form()
+        else:
+            QMessageBox.critical(self, "Règles", msg)
+
+    def _delete_rule(self) -> None:
+        if self._selected_rule_id is None:
+            QMessageBox.information(self, "Règles", "Sélectionne une règle enregistrée à supprimer.")
+            return
+
+        ok, msg = self._service.delete_rule(self._selected_rule_id)
+        if ok:
+            QMessageBox.information(self, "Règles", msg)
+            self._refresh_rules_ui()
+            self._reload_years(preserve=True)
+            self.reload_all()
+            self._clear_rule_form()
+        else:
+            QMessageBox.critical(self, "Règles", msg)
 
     def _export_bundle(self) -> None:
         if not self._service.config_ready():
-            QMessageBox.information(self, "Export", "Choisis d'abord une base DATA ; la table de configuration y sera créée automatiquement.")
+            QMessageBox.information(
+                self,
+                "Export",
+                "Choisis d'abord une base DATA ; la table de configuration y sera créée automatiquement.",
+            )
             return
         date_col = self._date_col_combo.currentText().strip()
         filepath, _ = QFileDialog.getSaveFileName(
@@ -320,9 +446,29 @@ class PHCPanel(QWidget):
         else:
             QMessageBox.critical(self, "Export", msg)
 
+    def _export_family_diagnostic(self) -> None:
+        filepath, _ = QFileDialog.getSaveFileName(
+            self,
+            "Exporter diagnostic familles",
+            str(Path.home() / "phc_family_diagnostic.json"),
+            "JSON (*.json);;Tous les fichiers (*)",
+        )
+        if not filepath:
+            return
+
+        ok, msg = self._service.export_family_diagnostic_json(filepath)
+        if ok:
+            QMessageBox.information(self, "Diagnostic familles", msg)
+        else:
+            QMessageBox.critical(self, "Diagnostic familles", msg)
+
     def _import_bundle(self) -> None:
         if not self._service.config_ready():
-            QMessageBox.information(self, "Import", "Choisis d'abord une base DATA ; la table de configuration y sera créée automatiquement.")
+            QMessageBox.information(
+                self,
+                "Import",
+                "Choisis d'abord une base DATA ; la table de configuration y sera créée automatiquement.",
+            )
             return
         filepath, _ = QFileDialog.getOpenFileName(
             self,
@@ -338,10 +484,10 @@ class PHCPanel(QWidget):
             self._refresh_rules_ui()
             self._reload_years(preserve=False)
             self.reload_all()
+            self._clear_rule_form()
         else:
             QMessageBox.critical(self, "Import", msg)
 
-    # ---------- Events ----------
     def _on_family_changed(self) -> None:
         self._offset = 0
         self._reload_years(preserve=True)
@@ -358,7 +504,6 @@ class PHCPanel(QWidget):
         ok, years, _msg = self._service.list_distinct_years_for_selection(date_col, fam, sub)
         self._years_combo.set_items_preserve(years if ok else [], prev)
 
-    # ---------- Actions ----------
     def _apply(self) -> None:
         self._offset = 0
         self.reload_all()
@@ -381,44 +526,48 @@ class PHCPanel(QWidget):
 
     def reload_all(self) -> None:
         self._ensure_initialized()
+
+        ok, msg = self._service.is_available()
+        if not ok:
+            self._title.setText(f"CDV_PHC - {msg}")
+            self._clear_table()
+            self._page_label.setText("Page : -")
+            self._prev_btn.setEnabled(False)
+            self._next_btn.setEnabled(False)
+            return
+
         self._reload_table()
-        self._reload_chart()
 
     def _reload_table(self) -> None:
-        filters = self._filters()
-        ok, page, msg = self._service.list_lines(filters, limit=self.PAGE_SIZE, offset=self._offset)
+        ok, page, msg = self._service.list_lines(self._filters(), limit=self.PAGE_SIZE, offset=self._offset)
+        fam, sub = self._current_family_selection()
+        suffix = ""
+        if fam:
+            suffix = f" | {fam}" + (f" / {sub}" if sub else "")
+        self._title.setText(f"CDV_PHC - Lignes (niveau article) : {msg}{suffix}")
+
         if not ok or page is None:
-            self._title.setText(f"CDV_PHC - {msg}")
-            self._table.setRowCount(0)
-            self._table.setColumnCount(0)
+            self._clear_table()
             self._page_label.setText("Page : -")
+            self._prev_btn.setEnabled(False)
+            self._next_btn.setEnabled(False)
             return
 
-        self._title.setText(f"CDV_PHC - Lignes (niveau article) : {page.message}")
-        self._table.setColumnCount(len(page.columns))
-        self._table.setHorizontalHeaderLabels(page.columns)
-        self._table.setRowCount(len(page.rows))
+        self._render_table(page.columns, page.rows)
+        page_num = (self._offset // self.PAGE_SIZE) + 1
+        self._page_label.setText(f"Page : {page_num} | {page.message}")
+        self._prev_btn.setEnabled(self._offset > 0)
+        self._next_btn.setEnabled(len(page.rows) == self.PAGE_SIZE)
 
-        for r, row in enumerate(page.rows):
-            for c, value in enumerate(row):
-                self._table.setItem(r, c, QTableWidgetItem("" if value is None else str(value)))
+    def _clear_table(self) -> None:
+        self._table.setRowCount(0)
+        self._table.setColumnCount(0)
 
+    def _render_table(self, columns: list[str], rows: list[list[object]]) -> None:
+        self._table.setColumnCount(len(columns))
+        self._table.setHorizontalHeaderLabels(columns)
+        self._table.setRowCount(len(rows))
+        for r, row_vals in enumerate(rows):
+            for c, v in enumerate(row_vals):
+                self._table.setItem(r, c, QTableWidgetItem("" if v is None else str(v)))
         self._table.resizeColumnsToContents()
-        current_page = (self._offset // self.PAGE_SIZE) + 1
-        self._page_label.setText(f"Page : {current_page}")
-
-    def _reload_chart(self) -> None:
-        self._ax.clear()
-
-        filters = self._filters()
-        ok, series, msg = self._service.series_qty_distribution(filters)
-        if not ok or series is None or not series.labels:
-            self._ax.set_title("Aucune donnée")
-            self._canvas.draw_idle()
-            return
-
-        self._ax.bar(series.labels, series.values)
-        self._ax.set_title("Répartition des quantités demandées")
-        self._ax.set_xlabel("Classes")
-        self._ax.set_ylabel("Nombre de lignes")
-        self._canvas.draw_idle()

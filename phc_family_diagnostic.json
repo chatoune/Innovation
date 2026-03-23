@@ -1,0 +1,4106 @@
+{
+  "table": "CDV_ALL",
+  "source_table_value": "CDV_PHC",
+  "rules_table": "phc_family_rules",
+  "rules_count": 16,
+  "combo_options_count": 248,
+  "article_families_count": 232,
+  "combo_options_status": "OK",
+  "rule_families": [
+    "BEx obsolètes",
+    "BXLT/MT/NT(I)",
+    "BXNA(I)",
+    "BXNE",
+    "BXNR/C/P/RV",
+    "RDN"
+  ],
+  "combo_options": [
+    {
+      "display": "(Toutes familles)",
+      "family": "",
+      "subfamily": ""
+    },
+    {
+      "display": "<Débute par chiffre>",
+      "family": "<Débute par chiffre>",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIV",
+      "family": "ACCDIV",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIV-BR",
+      "family": "ACCDIV-BR",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIV-DE",
+      "family": "ACCDIV-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVBA-EKP",
+      "family": "ACCDIVBA-EKP",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVBC_",
+      "family": "ACCDIVBC_",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVBX",
+      "family": "ACCDIVBX",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVBZG",
+      "family": "ACCDIVBZG",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVCBK",
+      "family": "ACCDIVCBK",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVGT",
+      "family": "ACCDIVGT",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVKIT-",
+      "family": "ACCDIVKIT-",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVOL",
+      "family": "ACCDIVOL",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVS",
+      "family": "ACCDIVS",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVSONDE",
+      "family": "ACCDIVSONDE",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVSSC",
+      "family": "ACCDIVSSC",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVTKF",
+      "family": "ACCDIVTKF",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVTKM",
+      "family": "ACCDIVTKM",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVTX",
+      "family": "ACCDIVTX",
+      "subfamily": ""
+    },
+    {
+      "display": "ACCDIVUI-",
+      "family": "ACCDIVUI-",
+      "subfamily": ""
+    },
+    {
+      "display": "AD",
+      "family": "AD",
+      "subfamily": ""
+    },
+    {
+      "display": "AFDET",
+      "family": "AFDET",
+      "subfamily": ""
+    },
+    {
+      "display": "ANNU",
+      "family": "ANNU",
+      "subfamily": ""
+    },
+    {
+      "display": "ANPRNU",
+      "family": "ANPRNU",
+      "subfamily": ""
+    },
+    {
+      "display": "ARF",
+      "family": "ARF",
+      "subfamily": ""
+    },
+    {
+      "display": "ASSBB-",
+      "family": "ASSBB-",
+      "subfamily": ""
+    },
+    {
+      "display": "BA",
+      "family": "BA",
+      "subfamily": ""
+    },
+    {
+      "display": "BASI",
+      "family": "BASI",
+      "subfamily": ""
+    },
+    {
+      "display": "BCHINOX-",
+      "family": "BCHINOX-",
+      "subfamily": ""
+    },
+    {
+      "display": "BEA",
+      "family": "BEA",
+      "subfamily": ""
+    },
+    {
+      "display": "BEAI",
+      "family": "BEAI",
+      "subfamily": ""
+    },
+    {
+      "display": "BED",
+      "family": "BED",
+      "subfamily": ""
+    },
+    {
+      "display": "BEE",
+      "family": "BEE",
+      "subfamily": ""
+    },
+    {
+      "display": "BEI",
+      "family": "BEI",
+      "subfamily": ""
+    },
+    {
+      "display": "BEP",
+      "family": "BEP",
+      "subfamily": ""
+    },
+    {
+      "display": "BER",
+      "family": "BER",
+      "subfamily": ""
+    },
+    {
+      "display": "BET",
+      "family": "BET",
+      "subfamily": ""
+    },
+    {
+      "display": "BETI",
+      "family": "BETI",
+      "subfamily": ""
+    },
+    {
+      "display": "BEx obsolètes",
+      "family": "BEx obsolètes",
+      "subfamily": ""
+    },
+    {
+      "display": "BLUESET",
+      "family": "BLUESET",
+      "subfamily": ""
+    },
+    {
+      "display": "BPX",
+      "family": "BPX",
+      "subfamily": ""
+    },
+    {
+      "display": "BR",
+      "family": "BR",
+      "subfamily": ""
+    },
+    {
+      "display": "BR-DE",
+      "family": "BR-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "BRCPINOX",
+      "family": "BRCPINOX",
+      "subfamily": ""
+    },
+    {
+      "display": "BRCPTFE",
+      "family": "BRCPTFE",
+      "subfamily": ""
+    },
+    {
+      "display": "BSI",
+      "family": "BSI",
+      "subfamily": ""
+    },
+    {
+      "display": "BT",
+      "family": "BT",
+      "subfamily": ""
+    },
+    {
+      "display": "BUZH-M",
+      "family": "BUZH-M",
+      "subfamily": ""
+    },
+    {
+      "display": "BVLT",
+      "family": "BVLT",
+      "subfamily": ""
+    },
+    {
+      "display": "BVLTI",
+      "family": "BVLTI",
+      "subfamily": ""
+    },
+    {
+      "display": "BVMT",
+      "family": "BVMT",
+      "subfamily": ""
+    },
+    {
+      "display": "BVMTI",
+      "family": "BVMTI",
+      "subfamily": ""
+    },
+    {
+      "display": "BVNA",
+      "family": "BVNA",
+      "subfamily": ""
+    },
+    {
+      "display": "BVNC",
+      "family": "BVNC",
+      "subfamily": ""
+    },
+    {
+      "display": "BVNI",
+      "family": "BVNI",
+      "subfamily": ""
+    },
+    {
+      "display": "BVNP",
+      "family": "BVNP",
+      "subfamily": ""
+    },
+    {
+      "display": "BVNR",
+      "family": "BVNR",
+      "subfamily": ""
+    },
+    {
+      "display": "BVNRV",
+      "family": "BVNRV",
+      "subfamily": ""
+    },
+    {
+      "display": "BVNS",
+      "family": "BVNS",
+      "subfamily": ""
+    },
+    {
+      "display": "BVNT",
+      "family": "BVNT",
+      "subfamily": ""
+    },
+    {
+      "display": "BVNTI",
+      "family": "BVNTI",
+      "subfamily": ""
+    },
+    {
+      "display": "BXLT",
+      "family": "BXLT",
+      "subfamily": ""
+    },
+    {
+      "display": "BXLT/MT/NT(I)",
+      "family": "BXLT/MT/NT(I)",
+      "subfamily": ""
+    },
+    {
+      "display": "BXLTI",
+      "family": "BXLTI",
+      "subfamily": ""
+    },
+    {
+      "display": "BXMT",
+      "family": "BXMT",
+      "subfamily": ""
+    },
+    {
+      "display": "BXMTI",
+      "family": "BXMTI",
+      "subfamily": ""
+    },
+    {
+      "display": "BXNA",
+      "family": "BXNA",
+      "subfamily": ""
+    },
+    {
+      "display": "BXNA(I)",
+      "family": "BXNA(I)",
+      "subfamily": ""
+    },
+    {
+      "display": "    └ BXNA1",
+      "family": "BXNA(I)",
+      "subfamily": "BXNA1"
+    },
+    {
+      "display": "    └ BXNAI2",
+      "family": "BXNA(I)",
+      "subfamily": "BXNAI2"
+    },
+    {
+      "display": "BXNAI",
+      "family": "BXNAI",
+      "subfamily": ""
+    },
+    {
+      "display": "BXNC",
+      "family": "BXNC",
+      "subfamily": ""
+    },
+    {
+      "display": "BXNE",
+      "family": "BXNE",
+      "subfamily": ""
+    },
+    {
+      "display": "    └ Alimentations",
+      "family": "BXNE",
+      "subfamily": "Alimentations"
+    },
+    {
+      "display": "    └ Alimentations linéaires",
+      "family": "BXNE",
+      "subfamily": "Alimentations linéaires"
+    },
+    {
+      "display": "BXNI",
+      "family": "BXNI",
+      "subfamily": ""
+    },
+    {
+      "display": "BXNP",
+      "family": "BXNP",
+      "subfamily": ""
+    },
+    {
+      "display": "BXNR",
+      "family": "BXNR",
+      "subfamily": ""
+    },
+    {
+      "display": "BXNR/C/P/RV",
+      "family": "BXNR/C/P/RV",
+      "subfamily": ""
+    },
+    {
+      "display": "    └ BXNC",
+      "family": "BXNR/C/P/RV",
+      "subfamily": "BXNC"
+    },
+    {
+      "display": "    └ BXNP",
+      "family": "BXNR/C/P/RV",
+      "subfamily": "BXNP"
+    },
+    {
+      "display": "    └ BXNR",
+      "family": "BXNR/C/P/RV",
+      "subfamily": "BXNR"
+    },
+    {
+      "display": "    └ BXNRV",
+      "family": "BXNR/C/P/RV",
+      "subfamily": "BXNRV"
+    },
+    {
+      "display": "BXNRV",
+      "family": "BXNRV",
+      "subfamily": ""
+    },
+    {
+      "display": "BXNT",
+      "family": "BXNT",
+      "subfamily": ""
+    },
+    {
+      "display": "BXNTI",
+      "family": "BXNTI",
+      "subfamily": ""
+    },
+    {
+      "display": "BZANZ",
+      "family": "BZANZ",
+      "subfamily": ""
+    },
+    {
+      "display": "BZATZ",
+      "family": "BZATZ",
+      "subfamily": ""
+    },
+    {
+      "display": "BZC",
+      "family": "BZC",
+      "subfamily": ""
+    },
+    {
+      "display": "BZCH",
+      "family": "BZCH",
+      "subfamily": ""
+    },
+    {
+      "display": "BZE",
+      "family": "BZE",
+      "subfamily": ""
+    },
+    {
+      "display": "BZG",
+      "family": "BZG",
+      "subfamily": ""
+    },
+    {
+      "display": "C",
+      "family": "C",
+      "subfamily": ""
+    },
+    {
+      "display": "CASI",
+      "family": "CASI",
+      "subfamily": ""
+    },
+    {
+      "display": "CCF-E",
+      "family": "CCF-E",
+      "subfamily": ""
+    },
+    {
+      "display": "CFB",
+      "family": "CFB",
+      "subfamily": ""
+    },
+    {
+      "display": "CFI",
+      "family": "CFI",
+      "subfamily": ""
+    },
+    {
+      "display": "CFIM",
+      "family": "CFIM",
+      "subfamily": ""
+    },
+    {
+      "display": "CFN",
+      "family": "CFN",
+      "subfamily": ""
+    },
+    {
+      "display": "COFFRET-",
+      "family": "COFFRET-",
+      "subfamily": ""
+    },
+    {
+      "display": "COFFRET-BASP",
+      "family": "COFFRET-BASP",
+      "subfamily": ""
+    },
+    {
+      "display": "COFFRET-BHD",
+      "family": "COFFRET-BHD",
+      "subfamily": ""
+    },
+    {
+      "display": "COFFRET-DE",
+      "family": "COFFRET-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "COFFRET-DEE",
+      "family": "COFFRET-DEE",
+      "subfamily": ""
+    },
+    {
+      "display": "COFFRET-DV",
+      "family": "COFFRET-DV",
+      "subfamily": ""
+    },
+    {
+      "display": "CONV_MST",
+      "family": "CONV_MST",
+      "subfamily": ""
+    },
+    {
+      "display": "CP-DE",
+      "family": "CP-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "CPX",
+      "family": "CPX",
+      "subfamily": ""
+    },
+    {
+      "display": "CPXBM",
+      "family": "CPXBM",
+      "subfamily": ""
+    },
+    {
+      "display": "CPXEXT",
+      "family": "CPXEXT",
+      "subfamily": ""
+    },
+    {
+      "display": "CPXEXTDT",
+      "family": "CPXEXTDT",
+      "subfamily": ""
+    },
+    {
+      "display": "CPXPSION",
+      "family": "CPXPSION",
+      "subfamily": ""
+    },
+    {
+      "display": "CR-",
+      "family": "CR-",
+      "subfamily": ""
+    },
+    {
+      "display": "CRN",
+      "family": "CRN",
+      "subfamily": ""
+    },
+    {
+      "display": "CT-",
+      "family": "CT-",
+      "subfamily": ""
+    },
+    {
+      "display": "DDG-CPN",
+      "family": "DDG-CPN",
+      "subfamily": ""
+    },
+    {
+      "display": "DDG-DE",
+      "family": "DDG-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "DDGSPE",
+      "family": "DDGSPE",
+      "subfamily": ""
+    },
+    {
+      "display": "DDR-",
+      "family": "DDR-",
+      "subfamily": ""
+    },
+    {
+      "display": "DE",
+      "family": "DE",
+      "subfamily": ""
+    },
+    {
+      "display": "DEE",
+      "family": "DEE",
+      "subfamily": ""
+    },
+    {
+      "display": "DES_",
+      "family": "DES_",
+      "subfamily": ""
+    },
+    {
+      "display": "DG",
+      "family": "DG",
+      "subfamily": ""
+    },
+    {
+      "display": "DG-DE",
+      "family": "DG-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "DIC",
+      "family": "DIC",
+      "subfamily": ""
+    },
+    {
+      "display": "DMB",
+      "family": "DMB",
+      "subfamily": ""
+    },
+    {
+      "display": "DOCUMENTATION-",
+      "family": "DOCUMENTATION-",
+      "subfamily": ""
+    },
+    {
+      "display": "DT",
+      "family": "DT",
+      "subfamily": ""
+    },
+    {
+      "display": "DZU",
+      "family": "DZU",
+      "subfamily": ""
+    },
+    {
+      "display": "ECMAPT",
+      "family": "ECMAPT",
+      "subfamily": ""
+    },
+    {
+      "display": "EI-DE",
+      "family": "EI-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "EMB",
+      "family": "EMB",
+      "subfamily": ""
+    },
+    {
+      "display": "EMD",
+      "family": "EMD",
+      "subfamily": ""
+    },
+    {
+      "display": "EMT",
+      "family": "EMT",
+      "subfamily": ""
+    },
+    {
+      "display": "ETUDEDEBOUCLESI",
+      "family": "ETUDEDEBOUCLESI",
+      "subfamily": ""
+    },
+    {
+      "display": "EX-DE",
+      "family": "EX-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "EXT-DE",
+      "family": "EXT-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "FXE-B-",
+      "family": "FXE-B-",
+      "subfamily": ""
+    },
+    {
+      "display": "GB",
+      "family": "GB",
+      "subfamily": ""
+    },
+    {
+      "display": "GB-DE",
+      "family": "GB-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "GC",
+      "family": "GC",
+      "subfamily": ""
+    },
+    {
+      "display": "GC-",
+      "family": "GC-",
+      "subfamily": ""
+    },
+    {
+      "display": "GC-DE",
+      "family": "GC-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "GCB",
+      "family": "GCB",
+      "subfamily": ""
+    },
+    {
+      "display": "GCS",
+      "family": "GCS",
+      "subfamily": ""
+    },
+    {
+      "display": "GCT",
+      "family": "GCT",
+      "subfamily": ""
+    },
+    {
+      "display": "GCTZZ",
+      "family": "GCTZZ",
+      "subfamily": ""
+    },
+    {
+      "display": "GCU",
+      "family": "GCU",
+      "subfamily": ""
+    },
+    {
+      "display": "GCZ",
+      "family": "GCZ",
+      "subfamily": ""
+    },
+    {
+      "display": "GEXI",
+      "family": "GEXI",
+      "subfamily": ""
+    },
+    {
+      "display": "GH",
+      "family": "GH",
+      "subfamily": ""
+    },
+    {
+      "display": "GM",
+      "family": "GM",
+      "subfamily": ""
+    },
+    {
+      "display": "GM-",
+      "family": "GM-",
+      "subfamily": ""
+    },
+    {
+      "display": "GM-DE",
+      "family": "GM-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "GM-SP",
+      "family": "GM-SP",
+      "subfamily": ""
+    },
+    {
+      "display": "GMB",
+      "family": "GMB",
+      "subfamily": ""
+    },
+    {
+      "display": "GMC",
+      "family": "GMC",
+      "subfamily": ""
+    },
+    {
+      "display": "GMF",
+      "family": "GMF",
+      "subfamily": ""
+    },
+    {
+      "display": "GMI",
+      "family": "GMI",
+      "subfamily": ""
+    },
+    {
+      "display": "GMZ",
+      "family": "GMZ",
+      "subfamily": ""
+    },
+    {
+      "display": "GN",
+      "family": "GN",
+      "subfamily": ""
+    },
+    {
+      "display": "GR-DE",
+      "family": "GR-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "GRE",
+      "family": "GRE",
+      "subfamily": ""
+    },
+    {
+      "display": "GS",
+      "family": "GS",
+      "subfamily": ""
+    },
+    {
+      "display": "GSI",
+      "family": "GSI",
+      "subfamily": ""
+    },
+    {
+      "display": "GSI-BA",
+      "family": "GSI-BA",
+      "subfamily": ""
+    },
+    {
+      "display": "GSI-BR",
+      "family": "GSI-BR",
+      "subfamily": ""
+    },
+    {
+      "display": "GSI-PSD",
+      "family": "GSI-PSD",
+      "subfamily": ""
+    },
+    {
+      "display": "GT",
+      "family": "GT",
+      "subfamily": ""
+    },
+    {
+      "display": "GT-",
+      "family": "GT-",
+      "subfamily": ""
+    },
+    {
+      "display": "GT-DE",
+      "family": "GT-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "GT-GEO",
+      "family": "GT-GEO",
+      "subfamily": ""
+    },
+    {
+      "display": "GTA",
+      "family": "GTA",
+      "subfamily": ""
+    },
+    {
+      "display": "GTB",
+      "family": "GTB",
+      "subfamily": ""
+    },
+    {
+      "display": "GTB-DE",
+      "family": "GTB-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "GTBZD",
+      "family": "GTBZD",
+      "subfamily": ""
+    },
+    {
+      "display": "GTE",
+      "family": "GTE",
+      "subfamily": ""
+    },
+    {
+      "display": "GTS",
+      "family": "GTS",
+      "subfamily": ""
+    },
+    {
+      "display": "GTT",
+      "family": "GTT",
+      "subfamily": ""
+    },
+    {
+      "display": "GTTZZ",
+      "family": "GTTZZ",
+      "subfamily": ""
+    },
+    {
+      "display": "GTU",
+      "family": "GTU",
+      "subfamily": ""
+    },
+    {
+      "display": "GTZ",
+      "family": "GTZ",
+      "subfamily": ""
+    },
+    {
+      "display": "GZU",
+      "family": "GZU",
+      "subfamily": ""
+    },
+    {
+      "display": "HMG",
+      "family": "HMG",
+      "subfamily": ""
+    },
+    {
+      "display": "K",
+      "family": "K",
+      "subfamily": ""
+    },
+    {
+      "display": "KIT_CF_KTY",
+      "family": "KIT_CF_KTY",
+      "subfamily": ""
+    },
+    {
+      "display": "KIT_CF_PT",
+      "family": "KIT_CF_PT",
+      "subfamily": ""
+    },
+    {
+      "display": "LPX",
+      "family": "LPX",
+      "subfamily": ""
+    },
+    {
+      "display": "LV",
+      "family": "LV",
+      "subfamily": ""
+    },
+    {
+      "display": "LW",
+      "family": "LW",
+      "subfamily": ""
+    },
+    {
+      "display": "LXC",
+      "family": "LXC",
+      "subfamily": ""
+    },
+    {
+      "display": "LXR",
+      "family": "LXR",
+      "subfamily": ""
+    },
+    {
+      "display": "MZA",
+      "family": "MZA",
+      "subfamily": ""
+    },
+    {
+      "display": "MZB",
+      "family": "MZB",
+      "subfamily": ""
+    },
+    {
+      "display": "MZC",
+      "family": "MZC",
+      "subfamily": ""
+    },
+    {
+      "display": "P",
+      "family": "P",
+      "subfamily": ""
+    },
+    {
+      "display": "PA-SP",
+      "family": "PA-SP",
+      "subfamily": ""
+    },
+    {
+      "display": "PAE",
+      "family": "PAE",
+      "subfamily": ""
+    },
+    {
+      "display": "PAEB",
+      "family": "PAEB",
+      "subfamily": ""
+    },
+    {
+      "display": "PB",
+      "family": "PB",
+      "subfamily": ""
+    },
+    {
+      "display": "PRESTA-BB-PS",
+      "family": "PRESTA-BB-PS",
+      "subfamily": ""
+    },
+    {
+      "display": "PT",
+      "family": "PT",
+      "subfamily": ""
+    },
+    {
+      "display": "PVTX",
+      "family": "PVTX",
+      "subfamily": ""
+    },
+    {
+      "display": "RDN",
+      "family": "RDN",
+      "subfamily": ""
+    },
+    {
+      "display": "    └ Isolateur TOR",
+      "family": "RDN",
+      "subfamily": "Isolateur TOR"
+    },
+    {
+      "display": "    └ Relais",
+      "family": "RDN",
+      "subfamily": "Relais"
+    },
+    {
+      "display": "    └ Relais bistable",
+      "family": "RDN",
+      "subfamily": "Relais bistable"
+    },
+    {
+      "display": "RDNBOX",
+      "family": "RDNBOX",
+      "subfamily": ""
+    },
+    {
+      "display": "RDNBOXB",
+      "family": "RDNBOXB",
+      "subfamily": ""
+    },
+    {
+      "display": "RDNBOXVIB",
+      "family": "RDNBOXVIB",
+      "subfamily": ""
+    },
+    {
+      "display": "REGBPX",
+      "family": "REGBPX",
+      "subfamily": ""
+    },
+    {
+      "display": "REGR",
+      "family": "REGR",
+      "subfamily": ""
+    },
+    {
+      "display": "REGTX",
+      "family": "REGTX",
+      "subfamily": ""
+    },
+    {
+      "display": "REP_ATEL_PHY",
+      "family": "REP_ATEL_PHY",
+      "subfamily": ""
+    },
+    {
+      "display": "S",
+      "family": "S",
+      "subfamily": ""
+    },
+    {
+      "display": "SA-DE",
+      "family": "SA-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "SC-DE",
+      "family": "SC-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "SD-DE",
+      "family": "SD-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "SDN",
+      "family": "SDN",
+      "subfamily": ""
+    },
+    {
+      "display": "SDPM",
+      "family": "SDPM",
+      "subfamily": ""
+    },
+    {
+      "display": "SEFP",
+      "family": "SEFP",
+      "subfamily": ""
+    },
+    {
+      "display": "SEFPA",
+      "family": "SEFPA",
+      "subfamily": ""
+    },
+    {
+      "display": "SEIW",
+      "family": "SEIW",
+      "subfamily": ""
+    },
+    {
+      "display": "SFT-E",
+      "family": "SFT-E",
+      "subfamily": ""
+    },
+    {
+      "display": "SL",
+      "family": "SL",
+      "subfamily": ""
+    },
+    {
+      "display": "SL-DE",
+      "family": "SL-DE",
+      "subfamily": ""
+    },
+    {
+      "display": "SPP",
+      "family": "SPP",
+      "subfamily": ""
+    },
+    {
+      "display": "SPT-",
+      "family": "SPT-",
+      "subfamily": ""
+    },
+    {
+      "display": "SPTLINK",
+      "family": "SPTLINK",
+      "subfamily": ""
+    },
+    {
+      "display": "SSC",
+      "family": "SSC",
+      "subfamily": ""
+    },
+    {
+      "display": "SZDFBE",
+      "family": "SZDFBE",
+      "subfamily": ""
+    },
+    {
+      "display": "TB",
+      "family": "TB",
+      "subfamily": ""
+    },
+    {
+      "display": "TEST_CEM",
+      "family": "TEST_CEM",
+      "subfamily": ""
+    },
+    {
+      "display": "TIA",
+      "family": "TIA",
+      "subfamily": ""
+    },
+    {
+      "display": "TIXLINK",
+      "family": "TIXLINK",
+      "subfamily": ""
+    },
+    {
+      "display": "TIXO",
+      "family": "TIXO",
+      "subfamily": ""
+    },
+    {
+      "display": "TWB",
+      "family": "TWB",
+      "subfamily": ""
+    },
+    {
+      "display": "TWS",
+      "family": "TWS",
+      "subfamily": ""
+    },
+    {
+      "display": "TWV",
+      "family": "TWV",
+      "subfamily": ""
+    },
+    {
+      "display": "UITAN-",
+      "family": "UITAN-",
+      "subfamily": ""
+    },
+    {
+      "display": "UITAX-",
+      "family": "UITAX-",
+      "subfamily": ""
+    },
+    {
+      "display": "VE_CALCULSTRESS",
+      "family": "VE_CALCULSTRESS",
+      "subfamily": ""
+    },
+    {
+      "display": "VSIBL",
+      "family": "VSIBL",
+      "subfamily": ""
+    },
+    {
+      "display": "VSIBN",
+      "family": "VSIBN",
+      "subfamily": ""
+    },
+    {
+      "display": "VSIJ",
+      "family": "VSIJ",
+      "subfamily": ""
+    },
+    {
+      "display": "VSIR",
+      "family": "VSIR",
+      "subfamily": ""
+    },
+    {
+      "display": "VSIV",
+      "family": "VSIV",
+      "subfamily": ""
+    },
+    {
+      "display": "XE-ADE",
+      "family": "XE-ADE",
+      "subfamily": ""
+    }
+  ],
+  "rules": [
+    {
+      "id": 50,
+      "family": "RDN",
+      "subfamily": "Relais bistable",
+      "enabled": 1,
+      "priority": 300,
+      "criteria": {
+        "regex_pattern": "^RDN(?:310|410)",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 65,
+      "family": "BEx obsolètes",
+      "subfamily": "",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^BE",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 51,
+      "family": "BXNA(I)",
+      "subfamily": "BXNA1",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^BXNA1",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 52,
+      "family": "BXNA(I)",
+      "subfamily": "BXNAI2",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^BXNAI2",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 53,
+      "family": "BXNE",
+      "subfamily": "Alimentations",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^(?:BXNE0|BXNE1|BXNE2|BXNE3)",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 54,
+      "family": "BXNE",
+      "subfamily": "Alimentations linéaires",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^(?:BXNE4|BXNE5|BXNE6|BXNE7)",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 55,
+      "family": "BXNR/C/P/RV",
+      "subfamily": "BXNC",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^BXNC",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 56,
+      "family": "BXNR/C/P/RV",
+      "subfamily": "BXNP",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^BXNP",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 57,
+      "family": "BXNR/C/P/RV",
+      "subfamily": "BXNR",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^BXNR",
+        "contains_any": [],
+        "not_contains_any": [
+          "V"
+        ]
+      }
+    },
+    {
+      "id": 58,
+      "family": "BXNR/C/P/RV",
+      "subfamily": "BXNRV",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^BXNRV",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 59,
+      "family": "RDN",
+      "subfamily": "Isolateur TOR",
+      "enabled": 1,
+      "priority": 200,
+      "criteria": {
+        "regex_pattern": "^RDN",
+        "contains_any": [
+          "V",
+          "W"
+        ],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 60,
+      "family": "BXLT/MT/NT(I)",
+      "subfamily": "",
+      "enabled": 1,
+      "priority": 100,
+      "criteria": {
+        "regex_pattern": "^(?:BXLTI|BXLT|BXMTI|BXMT|BXNTI|BXNT)",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 61,
+      "family": "BXNA(I)",
+      "subfamily": "",
+      "enabled": 1,
+      "priority": 100,
+      "criteria": {
+        "regex_pattern": "^(?:BXNA|BXNAI)",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 62,
+      "family": "BXNE",
+      "subfamily": "",
+      "enabled": 1,
+      "priority": 100,
+      "criteria": {
+        "regex_pattern": "^BXNE",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 63,
+      "family": "BXNR/C/P/RV",
+      "subfamily": "",
+      "enabled": 1,
+      "priority": 100,
+      "criteria": {
+        "regex_pattern": "^(?:BXNC|BXNP|BXNR|BXNRV)",
+        "contains_any": [],
+        "not_contains_any": []
+      }
+    },
+    {
+      "id": 64,
+      "family": "RDN",
+      "subfamily": "Relais",
+      "enabled": 1,
+      "priority": 100,
+      "criteria": {
+        "regex_pattern": "^RDN",
+        "contains_any": [],
+        "not_contains_any": [
+          "V",
+          "W",
+          "RDN310",
+          "RDN410"
+        ]
+      }
+    }
+  ],
+  "article_families": [
+    {
+      "family_root": "<Débute par chiffre>",
+      "count": 83,
+      "examples": [
+        "50VFTTT03ALB10356004",
+        "50LFTS03ALB01008013",
+        "50LFTS03ALB01508013",
+        "50LFTTT03ALB01606020",
+        "50LFPP03ALB034060020",
+        "850LFTTT03ALB0180602",
+        "50LFTTT06ALB03501224",
+        "50LFTS03ALB02508013",
+        "50LFTS03ALB02008013",
+        "81EIBC03ABB60305B",
+        "81EIBC03ALB40150B",
+        "81EIBC03ALB40230B",
+        "81EIBC03ALB40510B",
+        "81EIBC03ALB30650B",
+        "81EIBC03ALB40260B",
+        "81EIBC03ALB40240B",
+        "81EIBC03ALB40820B",
+        "50LF-DE20242035",
+        "81EISF03ABB60150F",
+        "81EISF03ABB60200F"
+      ]
+    },
+    {
+      "family_root": "ACCDIV",
+      "count": 1,
+      "examples": [
+        "ACCDIV110"
+      ]
+    },
+    {
+      "family_root": "ACCDIV-BR",
+      "count": 1,
+      "examples": [
+        "ACCDIV-BR323"
+      ]
+    },
+    {
+      "family_root": "ACCDIV-DE",
+      "count": 48,
+      "examples": [
+        "ACCDIV-DE17-700382-4",
+        "ACCDIV-DE17-700524-2",
+        "ACCDIV-DE20-210138",
+        "ACCDIV-DE20-BA",
+        "ACCDIV-DE18-800722",
+        "ACCDIV-DE17-700524-1",
+        "ACCDIV-DE17-700718-1",
+        "ACCDIV-DE16-600272",
+        "ACCDIV-DE18-800218",
+        "ACCDIV-DE18-800149",
+        "ACCDIV-DE17-700686-2",
+        "ACCDIV-DE17-700686-1",
+        "ACCDIV-DE17-700718-2"
+      ]
+    },
+    {
+      "family_root": "ACCDIVBA-EKP",
+      "count": 1,
+      "examples": [
+        "ACCDIVBA-EKP"
+      ]
+    },
+    {
+      "family_root": "ACCDIVBC_",
+      "count": 2,
+      "examples": [
+        "ACCDIVBC_3P"
+      ]
+    },
+    {
+      "family_root": "ACCDIVBX",
+      "count": 2,
+      "examples": [
+        "ACCDIVBX1450500C",
+        "ACCDIVBX1750200B"
+      ]
+    },
+    {
+      "family_root": "ACCDIVBZG",
+      "count": 6,
+      "examples": [
+        "ACCDIVBZG050",
+        "ACCDIVBZG010"
+      ]
+    },
+    {
+      "family_root": "ACCDIVCBK",
+      "count": 2,
+      "examples": [
+        "ACCDIVCBK20"
+      ]
+    },
+    {
+      "family_root": "ACCDIVGT",
+      "count": 10,
+      "examples": [
+        "ACCDIVGT45G",
+        "ACCDIVGT50",
+        "ACCDIVGT45"
+      ]
+    },
+    {
+      "family_root": "ACCDIVKIT-",
+      "count": 73,
+      "examples": [
+        "ACCDIVKIT-02",
+        "ACCDIVKIT-23",
+        "ACCDIVKIT-08",
+        "ACCDIVKIT-11",
+        "ACCDIVKIT-04",
+        "ACCDIVKIT-22",
+        "ACCDIVKIT-21",
+        "ACCDIVKIT-06",
+        "ACCDIVKIT-19",
+        "ACCDIVKIT-18",
+        "ACCDIVKIT-17",
+        "ACCDIVKIT-01",
+        "ACCDIVKIT-20",
+        "ACCDIVKIT-10"
+      ]
+    },
+    {
+      "family_root": "ACCDIVOL",
+      "count": 1,
+      "examples": [
+        "ACCDIVOL2"
+      ]
+    },
+    {
+      "family_root": "ACCDIVS",
+      "count": 23,
+      "examples": [
+        "ACCDIVS015",
+        "ACCDIVS019",
+        "ACCDIVS020",
+        "ACCDIVS018",
+        "ACCDIVS014",
+        "ACCDIVS008",
+        "ACCDIVS017",
+        "ACCDIVS016",
+        "ACCDIVS013",
+        "ACCDIVS012",
+        "ACCDIVS011",
+        "ACCDIVS010",
+        "ACCDIVS007"
+      ]
+    },
+    {
+      "family_root": "ACCDIVSONDE",
+      "count": 10,
+      "examples": [
+        "ACCDIVSONDE001"
+      ]
+    },
+    {
+      "family_root": "ACCDIVSSC",
+      "count": 64,
+      "examples": [
+        "ACCDIVSSC001",
+        "ACCDIVSSC006",
+        "ACCDIVSSC013",
+        "ACCDIVSSC005",
+        "ACCDIVSSC002",
+        "ACCDIVSSC012",
+        "ACCDIVSSC004",
+        "ACCDIVSSC003"
+      ]
+    },
+    {
+      "family_root": "ACCDIVTKF",
+      "count": 2,
+      "examples": [
+        "ACCDIVTKF"
+      ]
+    },
+    {
+      "family_root": "ACCDIVTKM",
+      "count": 2,
+      "examples": [
+        "ACCDIVTKM"
+      ]
+    },
+    {
+      "family_root": "ACCDIVTX",
+      "count": 22,
+      "examples": [
+        "ACCDIVTX01",
+        "ACCDIVTX02"
+      ]
+    },
+    {
+      "family_root": "ACCDIVUI-",
+      "count": 145,
+      "examples": [
+        "ACCDIVUI-001",
+        "ACCDIVUI-002",
+        "ACCDIVUI-003"
+      ]
+    },
+    {
+      "family_root": "AD",
+      "count": 1,
+      "examples": [
+        "AD50X"
+      ]
+    },
+    {
+      "family_root": "AFDET",
+      "count": 1,
+      "examples": [
+        "AFDET003"
+      ]
+    },
+    {
+      "family_root": "ANNU",
+      "count": 2,
+      "examples": [
+        "ANNU25SD6A1B223F-001",
+        "ANNU25ST31A4F"
+      ]
+    },
+    {
+      "family_root": "ANPRNU",
+      "count": 2,
+      "examples": [
+        "ANPRNU25SD6A1B21A-01"
+      ]
+    },
+    {
+      "family_root": "ARF",
+      "count": 7,
+      "examples": [
+        "ARF100"
+      ]
+    },
+    {
+      "family_root": "ASSBB-",
+      "count": 11,
+      "examples": [
+        "ASSBB-0-10BAR",
+        "ASSBB-0-100BAR",
+        "ASSBB-0-400BAR",
+        "ASSBB-80200C",
+        "ASSBB-0-200BAR"
+      ]
+    },
+    {
+      "family_root": "BA",
+      "count": 185,
+      "examples": [
+        "BA427E",
+        "BA307SE",
+        "BA374G-ALM",
+        "BA386R",
+        "BA327E",
+        "BA488C",
+        "BA504G",
+        "BA326C",
+        "BA324SG-BL",
+        "BA328E",
+        "BA390G",
+        "BA390A",
+        "BA390R",
+        "BA484D",
+        "BA304SG-BL",
+        "BA334G-BL",
+        "BA354E",
+        "BA507E-BL",
+        "BA314G-C",
+        "BA458C"
+      ]
+    },
+    {
+      "family_root": "BASI",
+      "count": 24,
+      "examples": [
+        "BASI2361000",
+        "BASI2361001"
+      ]
+    },
+    {
+      "family_root": "BCHINOX-",
+      "count": 1,
+      "examples": [
+        "BCHINOX-1_2-NPT"
+      ]
+    },
+    {
+      "family_root": "BEA",
+      "count": 1,
+      "examples": [
+        "BEA1003-00-00"
+      ]
+    },
+    {
+      "family_root": "BEAI",
+      "count": 3,
+      "examples": [
+        "BEAI2003"
+      ]
+    },
+    {
+      "family_root": "BED",
+      "count": 46,
+      "examples": [
+        "BED211002",
+        "BED410002",
+        "BED112002",
+        "BED211000",
+        "BED211CM2"
+      ]
+    },
+    {
+      "family_root": "BEE",
+      "count": 5,
+      "examples": [
+        "BEE052002",
+        "BEE011002",
+        "BEE052B02",
+        "BEE091002"
+      ]
+    },
+    {
+      "family_root": "BEI",
+      "count": 1,
+      "examples": [
+        "BEI2A400"
+      ]
+    },
+    {
+      "family_root": "BEP",
+      "count": 1,
+      "examples": [
+        "BEP13003-B0"
+      ]
+    },
+    {
+      "family_root": "BER",
+      "count": 23,
+      "examples": [
+        "BER07003-00",
+        "BER02003-00",
+        "BER01003-00",
+        "BER20003-00",
+        "BER03003-00",
+        "BER16B03-00",
+        "BER77B03-00"
+      ]
+    },
+    {
+      "family_root": "BET",
+      "count": 10,
+      "examples": [
+        "BET1003-00-00"
+      ]
+    },
+    {
+      "family_root": "BETI",
+      "count": 31,
+      "examples": [
+        "BETI2003"
+      ]
+    },
+    {
+      "family_root": "BLUESET",
+      "count": 117,
+      "examples": [
+        "BLUESET"
+      ]
+    },
+    {
+      "family_root": "BPX",
+      "count": 768,
+      "examples": [
+        "BPX1002-10-10",
+        "BPX0000-00-01_USB",
+        "BPX100E-10-10",
+        "BPX0000-00-03",
+        "BPX000E-10-1A",
+        "BPX100E-11-1A",
+        "BPX100E-10-1A",
+        "BPX000E-10-10",
+        "BPX001E-10-10",
+        "BPX0002-10-1A",
+        "BPX1002-10-1A",
+        "BPX0002-10-2D",
+        "BPX1002-11-2D",
+        "BPX1B02-10-1A",
+        "BPX000E-10-2D",
+        "BPX0000-00-01",
+        "BPX1B0E-10-1A",
+        "BPX0002-10-0B",
+        "BPX1002-11-1A",
+        "BPX000E-10-0E"
+      ]
+    },
+    {
+      "family_root": "BR",
+      "count": 2,
+      "examples": [
+        "BR385",
+        "BR391"
+      ]
+    },
+    {
+      "family_root": "BR-DE",
+      "count": 2,
+      "examples": [
+        "BR-DE19-900394"
+      ]
+    },
+    {
+      "family_root": "BRCPINOX",
+      "count": 1,
+      "examples": [
+        "BRCPINOX6"
+      ]
+    },
+    {
+      "family_root": "BRCPTFE",
+      "count": 102,
+      "examples": [
+        "BRCPTFE6"
+      ]
+    },
+    {
+      "family_root": "BSI",
+      "count": 3,
+      "examples": [
+        "BSI26_1"
+      ]
+    },
+    {
+      "family_root": "BT",
+      "count": 1,
+      "examples": [
+        "BT420"
+      ]
+    },
+    {
+      "family_root": "BUZH-M",
+      "count": 1,
+      "examples": [
+        "BUZH-M24"
+      ]
+    },
+    {
+      "family_root": "BVLT",
+      "count": 59,
+      "examples": [
+        "BVLT0002",
+        "BVLT000E",
+        "BVLT0B02"
+      ]
+    },
+    {
+      "family_root": "BVLTI",
+      "count": 1,
+      "examples": [
+        "BVLTI000E"
+      ]
+    },
+    {
+      "family_root": "BVMT",
+      "count": 22,
+      "examples": [
+        "BVMT000E",
+        "BVMT0002",
+        "BVMT0B02"
+      ]
+    },
+    {
+      "family_root": "BVMTI",
+      "count": 3,
+      "examples": [
+        "BVMTI0002"
+      ]
+    },
+    {
+      "family_root": "BVNA",
+      "count": 7,
+      "examples": [
+        "BVNA0000-00-00"
+      ]
+    },
+    {
+      "family_root": "BVNC",
+      "count": 2,
+      "examples": [
+        "BVNC23B00-00"
+      ]
+    },
+    {
+      "family_root": "BVNI",
+      "count": 6,
+      "examples": [
+        "BVNI20000",
+        "BVNI100B1",
+        "BVNI10000"
+      ]
+    },
+    {
+      "family_root": "BVNP",
+      "count": 143,
+      "examples": [
+        "BVNP13B03-B0",
+        "BVNP13000-B0",
+        "BVNP02000-05",
+        "BVNP13003-B0",
+        "BVNP01000-00"
+      ]
+    },
+    {
+      "family_root": "BVNR",
+      "count": 9,
+      "examples": [
+        "BVNR03000-00",
+        "BVNR20000-00",
+        "BVNR10000-00",
+        "BVNR04000-00",
+        "BVNR01003-09",
+        "BVNR02B03-00"
+      ]
+    },
+    {
+      "family_root": "BVNRV",
+      "count": 7,
+      "examples": [
+        "BVNRV1003-00",
+        "BVNRV7S10-00"
+      ]
+    },
+    {
+      "family_root": "BVNS",
+      "count": 16,
+      "examples": [
+        "BVNS0003-00-14",
+        "BVNS0003-22-00",
+        "BVNS0003-00-00",
+        "BVNS0000-00-03",
+        "BVNS0000-00-00"
+      ]
+    },
+    {
+      "family_root": "BVNT",
+      "count": 27,
+      "examples": [
+        "BVNT0002",
+        "BVNT000E",
+        "BVNT0B0E",
+        "BVNT0S42"
+      ]
+    },
+    {
+      "family_root": "BVNTI",
+      "count": 2,
+      "examples": [
+        "BVNTI0B0E"
+      ]
+    },
+    {
+      "family_root": "BXLT",
+      "count": 86,
+      "examples": [
+        "BXLT1002",
+        "BXLT100E",
+        "BXLT1B0E",
+        "BXLT1B02"
+      ]
+    },
+    {
+      "family_root": "BXLTI",
+      "count": 14,
+      "examples": [
+        "BXLTI2002",
+        "BXLTI2B0E",
+        "BXLTI200E"
+      ]
+    },
+    {
+      "family_root": "BXMT",
+      "count": 505,
+      "examples": [
+        "BXMT1002",
+        "BXMT1B02",
+        "BXMT100E"
+      ]
+    },
+    {
+      "family_root": "BXMTI",
+      "count": 52,
+      "examples": [
+        "BXMTI200E",
+        "BXMTI2002",
+        "BXMTI2B02"
+      ]
+    },
+    {
+      "family_root": "BXNA",
+      "count": 284,
+      "examples": [
+        "BXNA1003-00-00",
+        "BXNA1000-00-00",
+        "BXNA1B03-00-00",
+        "BXNA1001-00-00",
+        "BXNA1003-13-00",
+        "BXNA1000-13-00",
+        "BXNA1B00-04-00",
+        "BXNA2000-00-00"
+      ]
+    },
+    {
+      "family_root": "BXNAI",
+      "count": 35,
+      "examples": [
+        "BXNAI2000",
+        "BXNAI2003",
+        "BXNAI2B03",
+        "BXNAI2B10"
+      ]
+    },
+    {
+      "family_root": "BXNC",
+      "count": 5,
+      "examples": [
+        "BXNC19B00-00",
+        "BXNC19000-00",
+        "BXNC24003-00",
+        "BXNC25B00-00"
+      ]
+    },
+    {
+      "family_root": "BXNE",
+      "count": 1421,
+      "examples": [
+        "BXNE412002",
+        "BXNE620002",
+        "BXNE0500EE",
+        "BXNE0200E2",
+        "BXNE41200E",
+        "BXNE07D0E2",
+        "BXNE0500E2",
+        "BXNE3720E2",
+        "BXNE3100E2",
+        "BXNE3600E2",
+        "BXNE3400EE",
+        "BXNE0200EE",
+        "BXNE3400E2",
+        "BXNE3100EE",
+        "BXNE0100E2",
+        "BXNE62000E",
+        "BXNE610B02",
+        "BXNE0120E2",
+        "BXNE0600E2",
+        "BXNE650002"
+      ]
+    },
+    {
+      "family_root": "BXNI",
+      "count": 50,
+      "examples": [
+        "BXNI4A300",
+        "BXNI1A300",
+        "BXNI2A400",
+        "BXNI2A300",
+        "BXNI1A4B0",
+        "BXNI2A200",
+        "BXNI1TB0",
+        "BXNI2A100",
+        "BXNI2A4B0",
+        "BXNI2T00",
+        "BXNI1A100",
+        "BXNI1A400",
+        "BXNI2A3B0",
+        "BXNI1T00"
+      ]
+    },
+    {
+      "family_root": "BXNP",
+      "count": 514,
+      "examples": [
+        "BXNP13003-B0",
+        "BXNP13000-B0",
+        "BXNP02003-05",
+        "BXNP12000-00",
+        "BXNP16B00-B0",
+        "BXNP14003-05",
+        "BXNP02000-05",
+        "BXNP15003-B0",
+        "BXNP15B00-B0",
+        "BXNP01003-00",
+        "BXNP13003-B0-EM",
+        "BXNP15000-B0",
+        "BXNP01000-00"
+      ]
+    },
+    {
+      "family_root": "BXNR",
+      "count": 95,
+      "examples": [
+        "BXNR02003-00",
+        "BXNR03B00-00",
+        "BXNR20B00-00",
+        "BXNR45003-00",
+        "BXNR10000-00",
+        "BXNR09003-00",
+        "BXNR04003-00",
+        "BXNR75000-00",
+        "BXNR01003-00",
+        "BXNR02000-00",
+        "BXNR03000-00",
+        "BXNR12003-00",
+        "BXNR41000-00",
+        "BXNR20003-00",
+        "BXNR07003-00",
+        "BXNR03003-00",
+        "BXNR76000-00",
+        "BXNR45003-09",
+        "BXNR44003-00",
+        "BXNR19000-00"
+      ]
+    },
+    {
+      "family_root": "BXNRV",
+      "count": 17,
+      "examples": [
+        "BXNRV1003-00",
+        "BXNRV1B03-00"
+      ]
+    },
+    {
+      "family_root": "BXNT",
+      "count": 858,
+      "examples": [
+        "BXNT6002",
+        "BXNT600E",
+        "BXNT1003-13-09",
+        "BXNT1003-13-00",
+        "BXNT1003-00-09",
+        "BXNT6B0E",
+        "BXNT1003-04-09",
+        "BXNT1003-13-03",
+        "BXNT1001-00-00",
+        "BXNT1003-00-00",
+        "BXNT6B02",
+        "BXNT1B00-00-00",
+        "BXNT1000-00-00",
+        "BXNT1003-11-08",
+        "BXNT1003-00-A0",
+        "BXNT1B00-04-03",
+        "BXNT1003-00-14",
+        "BXNT1003-00-03",
+        "BXNT1000-00-09",
+        "BXNT1B03-00-00"
+      ]
+    },
+    {
+      "family_root": "BXNTI",
+      "count": 81,
+      "examples": [
+        "BXNTI600E",
+        "BXNTI2000",
+        "BXNTI6002",
+        "BXNTI2003",
+        "BXNTI6B02",
+        "BXNTI6B0E"
+      ]
+    },
+    {
+      "family_root": "BZANZ",
+      "count": 19,
+      "examples": [
+        "BZANZ3510"
+      ]
+    },
+    {
+      "family_root": "BZATZ",
+      "count": 12,
+      "examples": [
+        "BZATZ3510"
+      ]
+    },
+    {
+      "family_root": "BZC",
+      "count": 353,
+      "examples": [
+        "BZC313",
+        "BZC6_100_12A_73",
+        "BZC13_100_1_179",
+        "BZC13_100_11_179",
+        "BZC03A300",
+        "BZC24_100_2A_340",
+        "BZC24_50_22_A2",
+        "BZC24_50_22_A1",
+        "BZC03_50_1_A",
+        "BZC24_50_1_A1",
+        "BZC21_63_2A_407",
+        "BZC15_100_2A_123",
+        "BZC314",
+        "BZC10_100_1_75TR",
+        "BZC12_100_1_78",
+        "BZC669",
+        "BZC10_100_1_75",
+        "BZC2_150_2_62",
+        "BZC668",
+        "BZC673"
+      ]
+    },
+    {
+      "family_root": "BZCH",
+      "count": 3,
+      "examples": [
+        "BZCH16B"
+      ]
+    },
+    {
+      "family_root": "BZE",
+      "count": 53,
+      "examples": [
+        "BZE759AC",
+        "BZE804",
+        "BZE805",
+        "BZE785AC",
+        "BZE732AC"
+      ]
+    },
+    {
+      "family_root": "BZG",
+      "count": 1882,
+      "examples": [
+        "BZG764AC",
+        "BZG756AC",
+        "BZG760AC",
+        "BZG788PLUS",
+        "BZG789PLUS",
+        "BZG787PLUS",
+        "BZG761PLUS",
+        "BZG796PLUS",
+        "BZG767PLUS",
+        "BZG801",
+        "BZG787PPLUS",
+        "BZG787PLUS-40MA",
+        "BZG728PLUS",
+        "BZG764PLUS",
+        "BZG715PLUS",
+        "BZG710PLUS",
+        "BZG787PPLUS-40MA",
+        "BZG766AC",
+        "BZG2728PLUS",
+        "BZG2715PLUS"
+      ]
+    },
+    {
+      "family_root": "C",
+      "count": 3,
+      "examples": [
+        "C850AI03AB050A"
+      ]
+    },
+    {
+      "family_root": "CASI",
+      "count": 8,
+      "examples": [
+        "CASI0061E000",
+        "CASI2351E003",
+        "CASI0231E000"
+      ]
+    },
+    {
+      "family_root": "CCF-E",
+      "count": 1,
+      "examples": [
+        "CCF-E2235-1-REV2"
+      ]
+    },
+    {
+      "family_root": "CFB",
+      "count": 3,
+      "examples": [
+        "CFB12N60"
+      ]
+    },
+    {
+      "family_root": "CFI",
+      "count": 516,
+      "examples": [
+        "CFI12N60",
+        "CFI18G60",
+        "CFI12G60",
+        "CFI12N80",
+        "CFI14G40",
+        "CFI12G80",
+        "CFI12G100-PTFE",
+        "CFI38N80",
+        "CFI12N30",
+        "CFI12G50",
+        "CFI12N45",
+        "CFI12G15",
+        "CFI18N60",
+        "CFI12G90",
+        "CFI12N60-O",
+        "CFI38G60",
+        "CFI10NZZ",
+        "CFI12G135",
+        "CFI14G80-PTFE",
+        "CFI12G10"
+      ]
+    },
+    {
+      "family_root": "CFIM",
+      "count": 1,
+      "examples": [
+        "CFIM830"
+      ]
+    },
+    {
+      "family_root": "CFN",
+      "count": 2,
+      "examples": [
+        "CFN14G30"
+      ]
+    },
+    {
+      "family_root": "COFFRET-",
+      "count": 1,
+      "examples": [
+        "COFFRET-01-102015"
+      ]
+    },
+    {
+      "family_root": "COFFRET-BASP",
+      "count": 1,
+      "examples": [
+        "COFFRET-BASP4"
+      ]
+    },
+    {
+      "family_root": "COFFRET-BHD",
+      "count": 2,
+      "examples": [
+        "COFFRET-BHD51"
+      ]
+    },
+    {
+      "family_root": "COFFRET-DE",
+      "count": 2,
+      "examples": [
+        "COFFRET-DE17-700217",
+        "COFFRET-DE16-600149"
+      ]
+    },
+    {
+      "family_root": "COFFRET-DEE",
+      "count": 4,
+      "examples": [
+        "COFFRET-DEE7977",
+        "COFFRET-DEE6890",
+        "COFFRET-DEE6126-REV1",
+        "COFFRET-DEE2754-REV5"
+      ]
+    },
+    {
+      "family_root": "COFFRET-DV",
+      "count": 1,
+      "examples": [
+        "COFFRET-DV18000093"
+      ]
+    },
+    {
+      "family_root": "CONV_MST",
+      "count": 1,
+      "examples": [
+        "CONV_MST"
+      ]
+    },
+    {
+      "family_root": "CP-DE",
+      "count": 3,
+      "examples": [
+        "CP-DE19-900394-23"
+      ]
+    },
+    {
+      "family_root": "CPX",
+      "count": 8,
+      "examples": [
+        "CPX1022SH1",
+        "CPX1020SD1",
+        "CPX1002SD1",
+        "CPX1020AD1"
+      ]
+    },
+    {
+      "family_root": "CPXBM",
+      "count": 1,
+      "examples": [
+        "CPXBM"
+      ]
+    },
+    {
+      "family_root": "CPXEXT",
+      "count": 4,
+      "examples": [
+        "CPXEXT00"
+      ]
+    },
+    {
+      "family_root": "CPXEXTDT",
+      "count": 2,
+      "examples": [
+        "CPXEXTDT"
+      ]
+    },
+    {
+      "family_root": "CPXPSION",
+      "count": 1,
+      "examples": [
+        "CPXPSION"
+      ]
+    },
+    {
+      "family_root": "CR-",
+      "count": 15,
+      "examples": [
+        "CR-03A",
+        "CR-01A",
+        "CR-02A"
+      ]
+    },
+    {
+      "family_root": "CRN",
+      "count": 38,
+      "examples": [
+        "CRN300000",
+        "CRN600000",
+        "CRN300002",
+        "CRN200002",
+        "CRN600S20",
+        "CRN300DT2",
+        "CRN600002",
+        "CRN600S12",
+        "CRN200000"
+      ]
+    },
+    {
+      "family_root": "CT-",
+      "count": 86,
+      "examples": [
+        "CT-03A",
+        "CT-01A",
+        "CT-02A"
+      ]
+    },
+    {
+      "family_root": "DDG-CPN",
+      "count": 60,
+      "examples": [
+        "DDG-CPN106502",
+        "DDG-CPN046261",
+        "DDG-CPN055995",
+        "DDG-CPN036490"
+      ]
+    },
+    {
+      "family_root": "DDG-DE",
+      "count": 1,
+      "examples": [
+        "DDG-DE20-SPE"
+      ]
+    },
+    {
+      "family_root": "DDGSPE",
+      "count": 1,
+      "examples": [
+        "DDGSPE101120"
+      ]
+    },
+    {
+      "family_root": "DDR-",
+      "count": 2,
+      "examples": [
+        "DDR-15G-12"
+      ]
+    },
+    {
+      "family_root": "DE",
+      "count": 58,
+      "examples": [
+        "DE19-900754",
+        "DE19-900429-2",
+        "DE20-200062",
+        "DE19-900160",
+        "DE20-210129",
+        "DE19-900305",
+        "DE19-900411-2",
+        "DE19-900734-2",
+        "DE19-900133",
+        "DE19-COLLIER",
+        "DE19-900221-2",
+        "DE19-900461-2",
+        "DE19-900461-4",
+        "DE19-900461-6",
+        "DE19-900461-7",
+        "DE18-800347-6",
+        "DE18-800347-7",
+        "DE18-800347-8",
+        "DE19-900451-2",
+        "DE19-900317-3"
+      ]
+    },
+    {
+      "family_root": "DEE",
+      "count": 1,
+      "examples": [
+        "DEE8987-2"
+      ]
+    },
+    {
+      "family_root": "DES_",
+      "count": 1,
+      "examples": [
+        "DES_2022-05-37208-01"
+      ]
+    },
+    {
+      "family_root": "DG",
+      "count": 3,
+      "examples": [
+        "DG31000B"
+      ]
+    },
+    {
+      "family_root": "DG-DE",
+      "count": 5,
+      "examples": [
+        "DG-DE19-900638",
+        "DG-DE19-900394-3",
+        "DG-DE19-900596",
+        "DG-DE19-900394-2",
+        "DG-DE19-900394-1"
+      ]
+    },
+    {
+      "family_root": "DIC",
+      "count": 1,
+      "examples": [
+        "DIC4P400"
+      ]
+    },
+    {
+      "family_root": "DMB",
+      "count": 2,
+      "examples": [
+        "DMB96100B",
+        "DMB96500B"
+      ]
+    },
+    {
+      "family_root": "DOCUMENTATION-",
+      "count": 15,
+      "examples": [
+        "DOCUMENTATION-06"
+      ]
+    },
+    {
+      "family_root": "DT",
+      "count": 2,
+      "examples": [
+        "DT0-SP27",
+        "DT0-SP28"
+      ]
+    },
+    {
+      "family_root": "DZU",
+      "count": 1,
+      "examples": [
+        "DZU1401"
+      ]
+    },
+    {
+      "family_root": "ECMAPT",
+      "count": 5,
+      "examples": [
+        "ECMAPT2000_D_S",
+        "ECMAPT2000"
+      ]
+    },
+    {
+      "family_root": "EI-DE",
+      "count": 3,
+      "examples": [
+        "EI-DE20",
+        "EI-DE19-900720-3",
+        "EI-DE19-900720-4"
+      ]
+    },
+    {
+      "family_root": "EMB",
+      "count": 2,
+      "examples": [
+        "EMB10X1"
+      ]
+    },
+    {
+      "family_root": "EMD",
+      "count": 4,
+      "examples": [
+        "EMD43"
+      ]
+    },
+    {
+      "family_root": "EMT",
+      "count": 100,
+      "examples": [
+        "EMT100X",
+        "EMT300X",
+        "EMT200X",
+        "EMT200",
+        "EMT100",
+        "EMT300"
+      ]
+    },
+    {
+      "family_root": "ETUDEDEBOUCLESI",
+      "count": 25,
+      "examples": [
+        "ETUDEDEBOUCLESI"
+      ]
+    },
+    {
+      "family_root": "EX-DE",
+      "count": 5,
+      "examples": [
+        "EX-DE19-900394-3",
+        "EX-DE19-900394-4"
+      ]
+    },
+    {
+      "family_root": "EXT-DE",
+      "count": 1,
+      "examples": [
+        "EXT-DE18-800726"
+      ]
+    },
+    {
+      "family_root": "FXE-B-",
+      "count": 1,
+      "examples": [
+        "FXE-B-401A1"
+      ]
+    },
+    {
+      "family_root": "GB",
+      "count": 93,
+      "examples": [
+        "GB64000S",
+        "GB64000B"
+      ]
+    },
+    {
+      "family_root": "GB-DE",
+      "count": 4,
+      "examples": [
+        "GB-DE20241741-4",
+        "GB-DE20210077-1",
+        "GB-DE20210077-2",
+        "GB-DE20-SPE1"
+      ]
+    },
+    {
+      "family_root": "GC",
+      "count": 152,
+      "examples": [
+        "GC52100S",
+        "GC70Z200X",
+        "GC620040X",
+        "GC207075X",
+        "GC52500S",
+        "GC600300X",
+        "GC600600X",
+        "GC56Z050X",
+        "GC7Z7085X",
+        "GC204300X",
+        "GC75Z050X",
+        "GC75Z100X",
+        "GC51Z100X",
+        "GC80Z300WB5B1",
+        "GC601100X",
+        "GC600150X",
+        "GC201375X",
+        "GC201100X",
+        "GC501050X",
+        "GC501080X"
+      ]
+    },
+    {
+      "family_root": "GC-",
+      "count": 102,
+      "examples": [
+        "GC-2505262P",
+        "GC-2000075550",
+        "GC-2000077594",
+        "GC-2000074572",
+        "GC-2000085825",
+        "GC-2000076329",
+        "GC-2000077597",
+        "GC-2000074598",
+        "GC-2000074597",
+        "GC-2000074596",
+        "GC-2000084828",
+        "GC-2000074583",
+        "GC-2000076328",
+        "GC-2000074585",
+        "GC-2000074593",
+        "GC-20210602_TENORE",
+        "GC-2000084830",
+        "GC-2000074581",
+        "GC-2000084826",
+        "GC-2000074584"
+      ]
+    },
+    {
+      "family_root": "GC-DE",
+      "count": 28,
+      "examples": [
+        "GC-DE17-700542",
+        "GC-DE20241484",
+        "GC-DE20231073-1",
+        "GC-DE18-800363-2",
+        "GC-DE17-700524-1",
+        "GC-DE16-600272-1",
+        "GC-DE16-600272-2",
+        "GC-DE15-500750"
+      ]
+    },
+    {
+      "family_root": "GCB",
+      "count": 19,
+      "examples": [
+        "GCB07665XA5B1",
+        "GCB07880XA5B1",
+        "GCB00100XA2A1",
+        "GCB07210XB5B1",
+        "GCB0Z380XA6B1",
+        "GCB46182XD5B1",
+        "GCB46252XD5B1",
+        "GCB0Z205X8DBD",
+        "GCB0Z250ZD5B1",
+        "GCB00200X1GB1",
+        "GCB07210X2DB1",
+        "GCB4Z200XB5B1",
+        "GCB0Z450X2GB1",
+        "GCB0Z500ZA5BZ",
+        "GCB0Z500ZA5B1",
+        "GCB0Z400FB6A1"
+      ]
+    },
+    {
+      "family_root": "GCS",
+      "count": 1,
+      "examples": [
+        "GCS0Z065X"
+      ]
+    },
+    {
+      "family_root": "GCT",
+      "count": 8,
+      "examples": [
+        "GCT0Z150X",
+        "GCT0Z100X",
+        "GCT0Z220X",
+        "GCT0Z300X",
+        "GCT00070X"
+      ]
+    },
+    {
+      "family_root": "GCTZZ",
+      "count": 5,
+      "examples": [
+        "GCTZZ060X",
+        "GCTZZ040A",
+        "GCTZZ060A",
+        "GCTZZ065X"
+      ]
+    },
+    {
+      "family_root": "GCU",
+      "count": 10,
+      "examples": [
+        "GCU02115X",
+        "GCU10080X",
+        "GCU10115X",
+        "GCU10150X",
+        "GCU10180X",
+        "GCU10215X",
+        "GCU00100X"
+      ]
+    },
+    {
+      "family_root": "GCZ",
+      "count": 14,
+      "examples": [
+        "GCZ0Z150X",
+        "GCZ0Z280ZZDB1",
+        "GCZ0Z150ZZBB1",
+        "GCZ0Z150XZBB1",
+        "GCZ0Z175X",
+        "GCZ04150X",
+        "GCZ0Z210X2DB1",
+        "GCZ0Z110X",
+        "GCZ0Z120X"
+      ]
+    },
+    {
+      "family_root": "GEXI",
+      "count": 308,
+      "examples": [
+        "GEXI07",
+        "GEXI27",
+        "GEXI03",
+        "GEXI23_E",
+        "GEXI23",
+        "GEXI03_E",
+        "GEXI27_E",
+        "GEXI07_S",
+        "GEXI27_E_S",
+        "GEXI04_E_B",
+        "GEXI28",
+        "GEXI08",
+        "GEXI04",
+        "GEXI04_E",
+        "GEXI04_S",
+        "GEXI24_E",
+        "GEXI24",
+        "GEXI28_E",
+        "GEXI07_E_S",
+        "GEXI04_D"
+      ]
+    },
+    {
+      "family_root": "GH",
+      "count": 185,
+      "examples": [
+        "GH11010S",
+        "GH11020S"
+      ]
+    },
+    {
+      "family_root": "GM",
+      "count": 449,
+      "examples": [
+        "GM60A180X",
+        "GM60A200X",
+        "GM60A150X",
+        "GM50A060X",
+        "GM60A050X",
+        "GM50A130X",
+        "GM60A125X",
+        "GM60A060X",
+        "GM60A080X",
+        "GM60A095X",
+        "GM60A040X",
+        "GM60A250X",
+        "GM60A120X",
+        "GM60A100X",
+        "GM60A300X",
+        "GM60A220X",
+        "GM60A090X",
+        "GM90A050X",
+        "GM20D080X",
+        "GM20Z240X"
+      ]
+    },
+    {
+      "family_root": "GM-",
+      "count": 1,
+      "examples": [
+        "GM-252604E0128"
+      ]
+    },
+    {
+      "family_root": "GM-DE",
+      "count": 17,
+      "examples": [
+        "GM-DE20241890",
+        "GM-DE20-210096-2",
+        "GM-DE20-210096-3",
+        "GM-DE18-800201",
+        "GM-DE20-200024-2",
+        "GM-DE18-800223",
+        "GM-DE17-700720-1",
+        "GM-DE18-800054",
+        "GM-DE17-700720-2",
+        "GM-DE17-700582",
+        "GM-DE15-50067"
+      ]
+    },
+    {
+      "family_root": "GM-SP",
+      "count": 4,
+      "examples": [
+        "GM-SP08",
+        "GM-SP07",
+        "GM-SP05",
+        "GM-SP06"
+      ]
+    },
+    {
+      "family_root": "GMB",
+      "count": 9,
+      "examples": [
+        "GMB0A250X",
+        "GMB0A200X",
+        "GMB96100B",
+        "GMB96200",
+        "GMB0A020X",
+        "GMB0A040X",
+        "GMB0A066X",
+        "GMB0A100X",
+        "GMB0A166X"
+      ]
+    },
+    {
+      "family_root": "GMC",
+      "count": 2,
+      "examples": [
+        "GMC0Z080X"
+      ]
+    },
+    {
+      "family_root": "GMF",
+      "count": 4,
+      "examples": [
+        "GMF0A100X",
+        "GMF0J040X"
+      ]
+    },
+    {
+      "family_root": "GMI",
+      "count": 16,
+      "examples": [
+        "GMI0J010X",
+        "GMI0A030X",
+        "GMI0A150X",
+        "GMI0A200X",
+        "GMI0A100X"
+      ]
+    },
+    {
+      "family_root": "GMZ",
+      "count": 31,
+      "examples": [
+        "GMZ0Z200X",
+        "GMZ0Z210X",
+        "GMZ0I145X",
+        "GMZ0I120X",
+        "GMZ0Z150X",
+        "GMZ0E150X",
+        "GMZ0A450X",
+        "GMZ0A050W",
+        "GMZ0S350X2DA1",
+        "GMZ0A100X",
+        "GMZ0IZZZX",
+        "GMZ0A070W",
+        "GMZ0A100W",
+        "GMZ0A200X2DB1",
+        "GMZ0A150X",
+        "GMZ0ZZZZX2JB1",
+        "GMZ0A200X",
+        "GMZ0ZZZZX",
+        "GMZ0Z100X",
+        "GMZ0A190X"
+      ]
+    },
+    {
+      "family_root": "GN",
+      "count": 465,
+      "examples": [
+        "GN21000S",
+        "GN25000S",
+        "GN21000B",
+        "GN25000B"
+      ]
+    },
+    {
+      "family_root": "GR-DE",
+      "count": 3,
+      "examples": [
+        "GR-DE17-700189-1",
+        "GR-DE17-700189-2",
+        "GR-DE17-700189-3"
+      ]
+    },
+    {
+      "family_root": "GRE",
+      "count": 1,
+      "examples": [
+        "GRE0A225X2DB1"
+      ]
+    },
+    {
+      "family_root": "GS",
+      "count": 36,
+      "examples": [
+        "GS75000S"
+      ]
+    },
+    {
+      "family_root": "GSI",
+      "count": 100,
+      "examples": [
+        "GSI48_AC_S",
+        "GSI48_AC_S_R",
+        "GSI40_UN_S",
+        "GSI48_AC_2S",
+        "GSI48_AC_R",
+        "GSI40_UN",
+        "GSI48_DC_S_R",
+        "GSI48_DC_R",
+        "GSI27",
+        "GSI48_AC_2S_R",
+        "GSI48_DC",
+        "GSI48_DC_2S_R",
+        "GSI48_AC",
+        "GSI07"
+      ]
+    },
+    {
+      "family_root": "GSI-BA",
+      "count": 3,
+      "examples": [
+        "GSI-BA458C",
+        "GSI-BA454D",
+        "GSI-BA334D"
+      ]
+    },
+    {
+      "family_root": "GSI-BR",
+      "count": 5,
+      "examples": [
+        "GSI-BR323AL-M"
+      ]
+    },
+    {
+      "family_root": "GSI-PSD",
+      "count": 1,
+      "examples": [
+        "GSI-PSD002"
+      ]
+    },
+    {
+      "family_root": "GT",
+      "count": 503,
+      "examples": [
+        "GT45000S",
+        "GT60H050X",
+        "GT45000B",
+        "GT60H130X",
+        "GT50Z063W",
+        "GT60H100X",
+        "GT50C150X",
+        "GT60H105X",
+        "GT60Z060X",
+        "GT60Z100X",
+        "GT60I015Z",
+        "GT60I015X",
+        "GT60H063Z",
+        "GT60H063X",
+        "GT60K150X",
+        "GT60J100X",
+        "GT50H100X",
+        "GT50H400X",
+        "GT60H200X",
+        "GT20Z100X"
+      ]
+    },
+    {
+      "family_root": "GT-",
+      "count": 1,
+      "examples": [
+        "GT-117105"
+      ]
+    },
+    {
+      "family_root": "GT-DE",
+      "count": 13,
+      "examples": [
+        "GT-DE20241831",
+        "GT-DE20231104-2",
+        "GT-DE18-800218-18",
+        "GT-DE18-800218-17",
+        "GT-DE18-800229",
+        "GT-DE17-700846",
+        "GT-DE15-500711",
+        "GT-DE15-500686"
+      ]
+    },
+    {
+      "family_root": "GT-GEO",
+      "count": 1,
+      "examples": [
+        "GT-GEO117214"
+      ]
+    },
+    {
+      "family_root": "GTA",
+      "count": 2,
+      "examples": [
+        "GTA0ZZZZZA5A1",
+        "GTA0ZZZZX2ZA1"
+      ]
+    },
+    {
+      "family_root": "GTB",
+      "count": 35,
+      "examples": [
+        "GTB0Z600XB5B1",
+        "GTB0Z600XA5B1",
+        "GTB0Z600XA6B1",
+        "GTB0Z800XA6B1",
+        "GTB0ZZZZXA6B1",
+        "GTB0ZZZZIA6B1",
+        "GTB0Z850IA6B1",
+        "GTB0Z750IA6B1",
+        "GTB0Z900IA6B1",
+        "GTB0Z400XA5B1",
+        "GTB0Z270XA5B1",
+        "GTB0Z700XA5B1",
+        "GTB0Z130XA5B1",
+        "GTB0ZZZZXA5B1",
+        "GTB0Z700XA6B1",
+        "GTB0D200XB1B1",
+        "GTB0Z795XB6B1",
+        "GTB0Z380XB6B1",
+        "GTB0Z285XB6B1",
+        "GTB0Z200X4GB1"
+      ]
+    },
+    {
+      "family_root": "GTB-DE",
+      "count": 1,
+      "examples": [
+        "GTB-DE20231104-1"
+      ]
+    },
+    {
+      "family_root": "GTBZD",
+      "count": 1,
+      "examples": [
+        "GTBZD220XB5B1"
+      ]
+    },
+    {
+      "family_root": "GTE",
+      "count": 27,
+      "examples": [
+        "GTE0Z250Z1DB1",
+        "GTE0Z235ID1B1",
+        "GTE0Z375ID1B1",
+        "GTE0F200XA6B1",
+        "GTE0F250XA6B1",
+        "GTE0F400XA6B1",
+        "GTE0E400U1DB1",
+        "GTE0E300U1DB1",
+        "GTE0Z250X",
+        "GTE0H300Z",
+        "GTE0Z300Z",
+        "GTE0Z205Z",
+        "GTE0Z400X",
+        "GTE0Z250X4DD1",
+        "GTE0Z255Z4DA1",
+        "GTE0C300X2DB1",
+        "GTE0Z250C2DA1"
+      ]
+    },
+    {
+      "family_root": "GTS",
+      "count": 3,
+      "examples": [
+        "GTS0A145X",
+        "GTS0A070X",
+        "GTS7H150X"
+      ]
+    },
+    {
+      "family_root": "GTT",
+      "count": 5,
+      "examples": [
+        "GTT1I070X",
+        "GTT0H125X",
+        "GTT0B200X",
+        "GTT0H100X",
+        "GTT0Z155X"
+      ]
+    },
+    {
+      "family_root": "GTTZZ",
+      "count": 2,
+      "examples": [
+        "GTTZZ200X"
+      ]
+    },
+    {
+      "family_root": "GTU",
+      "count": 1,
+      "examples": [
+        "GTU0H060X"
+      ]
+    },
+    {
+      "family_root": "GTZ",
+      "count": 12,
+      "examples": [
+        "GTZ0Z220X",
+        "GTZ0A180X4DB1",
+        "GTZ5Z200X",
+        "GTZ0Z300Z2GB1",
+        "GTZ0A145X",
+        "GTZ0H200X",
+        "GTZ0Z050X",
+        "GTZ0H100X",
+        "GTZ0H080X",
+        "GTZ0D250XA6B1",
+        "GTZ0Z200X"
+      ]
+    },
+    {
+      "family_root": "GZU",
+      "count": 94,
+      "examples": [
+        "GZU1402",
+        "GZU1410",
+        "GZU1420",
+        "GZU1431",
+        "GZU1201",
+        "GZU1422",
+        "GZU1412",
+        "GZU1439",
+        "GZU1411",
+        "GZU1421"
+      ]
+    },
+    {
+      "family_root": "HMG",
+      "count": 5,
+      "examples": [
+        "HMG1-V2",
+        "HMG1"
+      ]
+    },
+    {
+      "family_root": "K",
+      "count": 1,
+      "examples": [
+        "K93"
+      ]
+    },
+    {
+      "family_root": "KIT_CF_KTY",
+      "count": 1,
+      "examples": [
+        "KIT_CF_KTY10_6P"
+      ]
+    },
+    {
+      "family_root": "KIT_CF_PT",
+      "count": 5,
+      "examples": [
+        "KIT_CF_PT1000_1P",
+        "KIT_CF_PT1000_2P",
+        "KIT_CF_PT1000_3P"
+      ]
+    },
+    {
+      "family_root": "LPX",
+      "count": 16,
+      "examples": [
+        "LPX1002-10-10",
+        "LPX100E-11-1A",
+        "LPX100E-11-10",
+        "LPX000E-10-1A",
+        "LPX1002-10-1A",
+        "LPX100E-10-1A",
+        "LPX1S12-10-10",
+        "LPX1002-10-0C",
+        "LPX1002-11-1A"
+      ]
+    },
+    {
+      "family_root": "LV",
+      "count": 29,
+      "examples": [
+        "LV01003-00-00",
+        "LV3S01003-00",
+        "LV01000-00-00",
+        "LV00000-00-00",
+        "LV00003-00-00",
+        "LV0B003-00-00"
+      ]
+    },
+    {
+      "family_root": "LW",
+      "count": 9,
+      "examples": [
+        "LW0B003-00-00",
+        "LW01003-00-00",
+        "LW01000-00-00",
+        "LW01DT3-00-00"
+      ]
+    },
+    {
+      "family_root": "LXC",
+      "count": 2,
+      "examples": [
+        "LXC1000-30-00"
+      ]
+    },
+    {
+      "family_root": "LXR",
+      "count": 5,
+      "examples": [
+        "LXR1000-29-00",
+        "LXR0000-02-00",
+        "LXR1S10-26-00",
+        "LXR1003-45-00"
+      ]
+    },
+    {
+      "family_root": "MZA",
+      "count": 17,
+      "examples": [
+        "MZA1300"
+      ]
+    },
+    {
+      "family_root": "MZB",
+      "count": 1,
+      "examples": [
+        "MZB1400"
+      ]
+    },
+    {
+      "family_root": "MZC",
+      "count": 16,
+      "examples": [
+        "MZC1400"
+      ]
+    },
+    {
+      "family_root": "P",
+      "count": 7,
+      "examples": [
+        "P162AH3",
+        "P164AH3",
+        "P162AH0",
+        "P081005",
+        "P082AH3"
+      ]
+    },
+    {
+      "family_root": "PA-SP",
+      "count": 1,
+      "examples": [
+        "PA-SP1"
+      ]
+    },
+    {
+      "family_root": "PAE",
+      "count": 3,
+      "examples": [
+        "PAE180000",
+        "PAE1840-00",
+        "PAE115302"
+      ]
+    },
+    {
+      "family_root": "PAEB",
+      "count": 2,
+      "examples": [
+        "PAEB1001"
+      ]
+    },
+    {
+      "family_root": "PB",
+      "count": 1,
+      "examples": [
+        "PB1-E1"
+      ]
+    },
+    {
+      "family_root": "PRESTA-BB-PS",
+      "count": 5,
+      "examples": [
+        "PRESTA-BB-PS"
+      ]
+    },
+    {
+      "family_root": "PT",
+      "count": 1,
+      "examples": [
+        "PT100CLA1503"
+      ]
+    },
+    {
+      "family_root": "PVTX",
+      "count": 6,
+      "examples": [
+        "PVTX00",
+        "PVTX301",
+        "PVTX302"
+      ]
+    },
+    {
+      "family_root": "RDN",
+      "count": 4437,
+      "examples": [
+        "RDN211B00",
+        "RDN210B00",
+        "RDN211WB00",
+        "RDN110000",
+        "RDN211002",
+        "RDN211AL0",
+        "RDN211W000",
+        "RDN110002",
+        "RDN211000",
+        "RDN211V003",
+        "RDN112002",
+        "RDN211WB03",
+        "RDN100000",
+        "RDN102002",
+        "RDN210000",
+        "RDN211B02",
+        "RDN112B02",
+        "RDN211B07",
+        "RDN211AL1",
+        "RDN210VB08"
+      ]
+    },
+    {
+      "family_root": "RDNBOX",
+      "count": 11,
+      "examples": [
+        "RDNBOX"
+      ]
+    },
+    {
+      "family_root": "RDNBOXB",
+      "count": 1,
+      "examples": [
+        "RDNBOXB2"
+      ]
+    },
+    {
+      "family_root": "RDNBOXVIB",
+      "count": 1,
+      "examples": [
+        "RDNBOXVIB"
+      ]
+    },
+    {
+      "family_root": "REGBPX",
+      "count": 21,
+      "examples": [
+        "REGBPX00"
+      ]
+    },
+    {
+      "family_root": "REGR",
+      "count": 311,
+      "examples": [
+        "REGR28_1",
+        "REGR28_3",
+        "REGR28_5",
+        "REGR28_2",
+        "REGR28",
+        "REGR28_10",
+        "REGR28_4",
+        "REGR28/3"
+      ]
+    },
+    {
+      "family_root": "REGTX",
+      "count": 77,
+      "examples": [
+        "REGTX01",
+        "REGTX03",
+        "REGTX02"
+      ]
+    },
+    {
+      "family_root": "REP_ATEL_PHY",
+      "count": 1,
+      "examples": [
+        "REP_ATEL_PHY"
+      ]
+    },
+    {
+      "family_root": "S",
+      "count": 2972,
+      "examples": [
+        "S1VFNA04ABBZ300400AB",
+        "S5VFDE03ABB530AD10BB",
+        "S5VFDEK11BB5301000BB",
+        "S5LFNA03ABB0600500BF",
+        "S1-DE15-500501",
+        "S1VFBE03ABB1602000AE",
+        "S1VFBW03ABB160AD30AS",
+        "S1LFBW03ALB0600500AS",
+        "S5VFNA03ALB1602200BT",
+        "S5VFNA03ALB1601700BT",
+        "S5LFNA03ALB0600700BT",
+        "S1-DE20252148-1",
+        "S1-DE20252148-3",
+        "S1-DE20241758",
+        "S4VFXE03ALB2600800CB",
+        "S1DFNA03AHB1600701AE",
+        "S5VFNA03ABB160AD10BF",
+        "S1VFNA03ABB160AD10AE",
+        "S1-DE14-40222",
+        "S1KFNA03ABB2602500AE"
+      ]
+    },
+    {
+      "family_root": "SA-DE",
+      "count": 7,
+      "examples": [
+        "SA-DE20-200207",
+        "SA-DE20-200316",
+        "SA-DE19-900394-21",
+        "SA-DE20-200105",
+        "SA-DE19SPE-1"
+      ]
+    },
+    {
+      "family_root": "SC-DE",
+      "count": 1,
+      "examples": [
+        "SC-DE20-200267"
+      ]
+    },
+    {
+      "family_root": "SD-DE",
+      "count": 1,
+      "examples": [
+        "SD-DE20-SPECIAL1"
+      ]
+    },
+    {
+      "family_root": "SDN",
+      "count": 12,
+      "examples": [
+        "SDN1U10",
+        "SDN1U20"
+      ]
+    },
+    {
+      "family_root": "SDPM",
+      "count": 1,
+      "examples": [
+        "SDPM12-14G"
+      ]
+    },
+    {
+      "family_root": "SEFP",
+      "count": 2,
+      "examples": [
+        "SEFP03ABB60035B",
+        "SEFP03AAB60050S"
+      ]
+    },
+    {
+      "family_root": "SEFPA",
+      "count": 1,
+      "examples": [
+        "SEFPA03AAB90050B"
+      ]
+    },
+    {
+      "family_root": "SEIW",
+      "count": 6,
+      "examples": [
+        "SEIW03AAB60050E",
+        "SEIW03ABB90050B",
+        "SEIW03AAB90050S"
+      ]
+    },
+    {
+      "family_root": "SFT-E",
+      "count": 1,
+      "examples": [
+        "SFT-E2235-1-REV2"
+      ]
+    },
+    {
+      "family_root": "SL",
+      "count": 2,
+      "examples": [
+        "SL190603EDF",
+        "SL190603EDF-2"
+      ]
+    },
+    {
+      "family_root": "SL-DE",
+      "count": 23,
+      "examples": [
+        "SL-DE20-200400",
+        "SL-DE20-220568",
+        "SL-DE20-20201",
+        "SL-DE20-20202",
+        "SL-DE20-200439"
+      ]
+    },
+    {
+      "family_root": "SPP",
+      "count": 7,
+      "examples": [
+        "SPP01042",
+        "SPP01043"
+      ]
+    },
+    {
+      "family_root": "SPT-",
+      "count": 23,
+      "examples": [
+        "SPT-87E",
+        "SPT-87U"
+      ]
+    },
+    {
+      "family_root": "SPTLINK",
+      "count": 3,
+      "examples": [
+        "SPTLINK1_USB"
+      ]
+    },
+    {
+      "family_root": "SSC",
+      "count": 2,
+      "examples": [
+        "SSC3/8-3/8_11",
+        "SSC3/8-3/8"
+      ]
+    },
+    {
+      "family_root": "SZDFBE",
+      "count": 8,
+      "examples": [
+        "SZDFBE03ABBZ141601AB",
+        "SZDFBE03ABBZ14AD21AB",
+        "SZDFBE03ABBZ801601AB"
+      ]
+    },
+    {
+      "family_root": "TB",
+      "count": 1,
+      "examples": [
+        "TB10SSTJ11B60125"
+      ]
+    },
+    {
+      "family_root": "TEST_CEM",
+      "count": 1,
+      "examples": [
+        "TEST_CEM"
+      ]
+    },
+    {
+      "family_root": "TIA",
+      "count": 288,
+      "examples": [
+        "TIA2B",
+        "TIA2A",
+        "TIA2D",
+        "TIA3B",
+        "TIA3A",
+        "TIA3D",
+        "TIA1B",
+        "TIA1A"
+      ]
+    },
+    {
+      "family_root": "TIXLINK",
+      "count": 134,
+      "examples": [
+        "TIXLINK1_USB",
+        "TIXLINK1",
+        "TIXLINK5",
+        "TIXLINK4",
+        "TIXLINK3_USB"
+      ]
+    },
+    {
+      "family_root": "TIXO",
+      "count": 1435,
+      "examples": [
+        "TIXO1A0-00",
+        "TIXO3A0-00",
+        "TIXO3B0-00",
+        "TIXO2A0-00",
+        "TIXO1B0-00",
+        "TIXO2B0-00",
+        "TIXO2D0-00",
+        "TIXO2B1-00"
+      ]
+    },
+    {
+      "family_root": "TWB",
+      "count": 2,
+      "examples": [
+        "TWB14B1416000",
+        "TWB14B1306000"
+      ]
+    },
+    {
+      "family_root": "TWS",
+      "count": 14,
+      "examples": [
+        "TWS11B90100",
+        "TWS11B90150"
+      ]
+    },
+    {
+      "family_root": "TWV",
+      "count": 3,
+      "examples": [
+        "TWV11B90080"
+      ]
+    },
+    {
+      "family_root": "UITAN-",
+      "count": 165,
+      "examples": [
+        "UITAN-1UN-1M1-UN000",
+        "UITAN-1UN-1M2-UN000",
+        "UITAN-1UN-1M1-UC001",
+        "UITAN-1UN-1M5-UN000",
+        "UITAN-1UN-1M2-UC001",
+        "UITAN-1UN-1M3-UN000",
+        "UITAN-1UN-1M1-UN001"
+      ]
+    },
+    {
+      "family_root": "UITAX-",
+      "count": 70,
+      "examples": [
+        "UITAX-1UN-1M2-UN000",
+        "UITAX-1UN-1M1-UC001",
+        "UITAX-1UN-1M1-UN000"
+      ]
+    },
+    {
+      "family_root": "VE_CALCULSTRESS",
+      "count": 5,
+      "examples": [
+        "VE_CALCULSTRESS"
+      ]
+    },
+    {
+      "family_root": "VSIBL",
+      "count": 3,
+      "examples": [
+        "VSIBL"
+      ]
+    },
+    {
+      "family_root": "VSIBN",
+      "count": 3,
+      "examples": [
+        "VSIBN"
+      ]
+    },
+    {
+      "family_root": "VSIJ",
+      "count": 43,
+      "examples": [
+        "VSIJ"
+      ]
+    },
+    {
+      "family_root": "VSIR",
+      "count": 242,
+      "examples": [
+        "VSIR"
+      ]
+    },
+    {
+      "family_root": "VSIV",
+      "count": 253,
+      "examples": [
+        "VSIV"
+      ]
+    },
+    {
+      "family_root": "XE-ADE",
+      "count": 1,
+      "examples": [
+        "XE-ADE1F"
+      ]
+    }
+  ],
+  "families_from_articles_not_in_rules": [
+    "<Débute par chiffre>",
+    "ACCDIV",
+    "ACCDIV-BR",
+    "ACCDIV-DE",
+    "ACCDIVBA-EKP",
+    "ACCDIVBC_",
+    "ACCDIVBX",
+    "ACCDIVBZG",
+    "ACCDIVCBK",
+    "ACCDIVGT",
+    "ACCDIVKIT-",
+    "ACCDIVOL",
+    "ACCDIVS",
+    "ACCDIVSONDE",
+    "ACCDIVSSC",
+    "ACCDIVTKF",
+    "ACCDIVTKM",
+    "ACCDIVTX",
+    "ACCDIVUI-",
+    "AD",
+    "AFDET",
+    "ANNU",
+    "ANPRNU",
+    "ARF",
+    "ASSBB-",
+    "BA",
+    "BASI",
+    "BCHINOX-",
+    "BEA",
+    "BEAI",
+    "BED",
+    "BEE",
+    "BEI",
+    "BEP",
+    "BER",
+    "BET",
+    "BETI",
+    "BLUESET",
+    "BPX",
+    "BR",
+    "BR-DE",
+    "BRCPINOX",
+    "BRCPTFE",
+    "BSI",
+    "BT",
+    "BUZH-M",
+    "BVLT",
+    "BVLTI",
+    "BVMT",
+    "BVMTI",
+    "BVNA",
+    "BVNC",
+    "BVNI",
+    "BVNP",
+    "BVNR",
+    "BVNRV",
+    "BVNS",
+    "BVNT",
+    "BVNTI",
+    "BXLT",
+    "BXLTI",
+    "BXMT",
+    "BXMTI",
+    "BXNA",
+    "BXNAI",
+    "BXNC",
+    "BXNI",
+    "BXNP",
+    "BXNR",
+    "BXNRV",
+    "BXNT",
+    "BXNTI",
+    "BZANZ",
+    "BZATZ",
+    "BZC",
+    "BZCH",
+    "BZE",
+    "BZG",
+    "C",
+    "CASI",
+    "CCF-E",
+    "CFB",
+    "CFI",
+    "CFIM",
+    "CFN",
+    "COFFRET-",
+    "COFFRET-BASP",
+    "COFFRET-BHD",
+    "COFFRET-DE",
+    "COFFRET-DEE",
+    "COFFRET-DV",
+    "CONV_MST",
+    "CP-DE",
+    "CPX",
+    "CPXBM",
+    "CPXEXT",
+    "CPXEXTDT",
+    "CPXPSION",
+    "CR-",
+    "CRN",
+    "CT-",
+    "DDG-CPN",
+    "DDG-DE",
+    "DDGSPE",
+    "DDR-",
+    "DE",
+    "DEE",
+    "DES_",
+    "DG",
+    "DG-DE",
+    "DIC",
+    "DMB",
+    "DOCUMENTATION-",
+    "DT",
+    "DZU",
+    "ECMAPT",
+    "EI-DE",
+    "EMB",
+    "EMD",
+    "EMT",
+    "ETUDEDEBOUCLESI",
+    "EX-DE",
+    "EXT-DE",
+    "FXE-B-",
+    "GB",
+    "GB-DE",
+    "GC",
+    "GC-",
+    "GC-DE",
+    "GCB",
+    "GCS",
+    "GCT",
+    "GCTZZ",
+    "GCU",
+    "GCZ",
+    "GEXI",
+    "GH",
+    "GM",
+    "GM-",
+    "GM-DE",
+    "GM-SP",
+    "GMB",
+    "GMC",
+    "GMF",
+    "GMI",
+    "GMZ",
+    "GN",
+    "GR-DE",
+    "GRE",
+    "GS",
+    "GSI",
+    "GSI-BA",
+    "GSI-BR",
+    "GSI-PSD",
+    "GT",
+    "GT-",
+    "GT-DE",
+    "GT-GEO",
+    "GTA",
+    "GTB",
+    "GTB-DE",
+    "GTBZD",
+    "GTE",
+    "GTS",
+    "GTT",
+    "GTTZZ",
+    "GTU",
+    "GTZ",
+    "GZU",
+    "HMG",
+    "K",
+    "KIT_CF_KTY",
+    "KIT_CF_PT",
+    "LPX",
+    "LV",
+    "LW",
+    "LXC",
+    "LXR",
+    "MZA",
+    "MZB",
+    "MZC",
+    "P",
+    "PA-SP",
+    "PAE",
+    "PAEB",
+    "PB",
+    "PRESTA-BB-PS",
+    "PT",
+    "PVTX",
+    "RDNBOX",
+    "RDNBOXB",
+    "RDNBOXVIB",
+    "REGBPX",
+    "REGR",
+    "REGTX",
+    "REP_ATEL_PHY",
+    "S",
+    "SA-DE",
+    "SC-DE",
+    "SD-DE",
+    "SDN",
+    "SDPM",
+    "SEFP",
+    "SEFPA",
+    "SEIW",
+    "SFT-E",
+    "SL",
+    "SL-DE",
+    "SPP",
+    "SPT-",
+    "SPTLINK",
+    "SSC",
+    "SZDFBE",
+    "TB",
+    "TEST_CEM",
+    "TIA",
+    "TIXLINK",
+    "TIXO",
+    "TWB",
+    "TWS",
+    "TWV",
+    "UITAN-",
+    "UITAX-",
+    "VE_CALCULSTRESS",
+    "VSIBL",
+    "VSIBN",
+    "VSIJ",
+    "VSIR",
+    "VSIV",
+    "XE-ADE"
+  ],
+  "families_from_rules_not_in_articles": [
+    "BEx obsolètes",
+    "BXLT/MT/NT(I)",
+    "BXNA(I)",
+    "BXNR/C/P/RV"
+  ]
+}

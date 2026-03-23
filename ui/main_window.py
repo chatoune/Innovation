@@ -1,21 +1,20 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from PySide6.QtWidgets import (
-    QMainWindow,
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QPushButton,
+    QFileDialog,
     QLabel,
     QListWidget,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
     QTableWidget,
     QTableWidgetItem,
-    QFileDialog,
-    QMessageBox,
     QTabWidget,
+    QVBoxLayout,
+    QWidget,
+    QHBoxLayout,
 )
 
 from app.config_db import ConfigDB
@@ -36,11 +35,9 @@ class MainWindow(QMainWindow):
         self._db_manager = DatabaseManager()
         self._reporter = DatabaseReporter(self._db_manager)
 
-        # Services
         self._cdv_service = CDVService(self._db_manager)
         self._phc_service = PHCService(self._db_manager)
 
-        # UI
         self.setWindowTitle("Innovation - Exploitation SQLite")
         self.resize(1500, 950)
 
@@ -59,16 +56,12 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("Initialisation...")
 
         self._build_menu()
-
-        # Charger DB DATA depuis settings
         self._load_database_from_settings()
 
-        # Refresh
         self._refresh_explorer_tables()
         self._cdv_panel.reload_all()
         self._phc_panel.reload_all()
 
-    # ---------- Menu ----------
     def _build_menu(self) -> None:
         menubar = self.menuBar()
         file_menu = menubar.addMenu("&Fichier")
@@ -84,7 +77,7 @@ class MainWindow(QMainWindow):
 
         file_menu.addSeparator()
 
-        export_report_action = file_menu.addAction("Exporter rapport (sans données) ...")
+        export_report_action = file_menu.addAction("Exporter rapport (sans données)...")
         export_report_action.triggered.connect(self._export_report)
 
         file_menu.addSeparator()
@@ -92,7 +85,6 @@ class MainWindow(QMainWindow):
         quit_action = file_menu.addAction("Quitter")
         quit_action.triggered.connect(self.close)
 
-    # ---------- DATA DB ----------
     def _load_database_from_settings(self) -> None:
         db_path = self._settings.get_database_path()
         if db_path is None or not db_path.exists():
@@ -164,7 +156,6 @@ class MainWindow(QMainWindow):
 
         self._phc_panel.reload_all()
 
-    # ---------- Rapport sans données ----------
     def _export_report(self) -> None:
         ok_conn, msg_conn = self._db_manager.test_connection()
         if not ok_conn:
@@ -192,7 +183,6 @@ class MainWindow(QMainWindow):
         else:
             QMessageBox.critical(self, "Rapport", msg)
 
-    # ---------- Explorateur ----------
     def _build_explorer_tab(self) -> QWidget:
         self._expl_status = QLabel("Explorateur : sélectionne une table.")
         self._expl_status.setWordWrap(True)
