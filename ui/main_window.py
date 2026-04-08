@@ -24,8 +24,10 @@ from app.database_reporter import DatabaseReporter, ReportOptions
 from app.settings import AppSettings
 from services.cdv_service import CDVService
 from services.phc_service import PHCService
+from services.rm_service import RMService
 from ui.cdv_panel import CDVPanel
 from ui.phc_panel import PHCPanel
+from ui.rm_panel import RMPanel
 
 
 class MainWindow(QMainWindow):
@@ -38,6 +40,7 @@ class MainWindow(QMainWindow):
 
         self._cdv_service = CDVService(self._db_manager)
         self._phc_service = PHCService(self._db_manager)
+        self._rm_service = RMService(self._db_manager)
 
         self.setWindowTitle("Innovation - Exploitation SQLite")
         self.resize(1500, 950)
@@ -49,6 +52,9 @@ class MainWindow(QMainWindow):
 
         self._phc_panel = PHCPanel(self._phc_service)
         self._tabs.addTab(self._phc_panel, "Analyse CDV_PHC")
+
+        self._rm_panel = RMPanel(self._rm_service)
+        self._tabs.addTab(self._rm_panel, "Exigences (RM)")
 
         self._explorer_tab = self._build_explorer_tab()
         self._tabs.addTab(self._explorer_tab, "Explorateur")
