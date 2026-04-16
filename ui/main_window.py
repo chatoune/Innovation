@@ -25,9 +25,11 @@ from app.settings import AppSettings
 from services.cdv_service import CDVService
 from services.phc_service import PHCService
 from services.rm_service import RMService
+from services.reference_service import ReferenceService
 from ui.cdv_panel import CDVPanel
 from ui.phc_panel import PHCPanel
 from ui.rm_panel import RMPanel
+from ui.reference_panel import ReferencePanel
 
 
 class MainWindow(QMainWindow):
@@ -41,6 +43,7 @@ class MainWindow(QMainWindow):
         self._cdv_service = CDVService(self._db_manager)
         self._phc_service = PHCService(self._db_manager)
         self._rm_service = RMService(self._db_manager)
+        self._reference_service = ReferenceService(self._db_manager)
 
         self.setWindowTitle("Innovation - Exploitation SQLite")
         self.resize(1500, 950)
@@ -56,6 +59,9 @@ class MainWindow(QMainWindow):
         self._rm_panel = RMPanel(self._rm_service)
         self._tabs.addTab(self._rm_panel, "Exigences (RM)")
 
+        self._reference_panel = ReferencePanel(self._reference_service)
+        self._tabs.addTab(self._reference_panel, "Références GR/GA")
+
         self._explorer_tab = self._build_explorer_tab()
         self._tabs.addTab(self._explorer_tab, "Explorateur")
 
@@ -68,6 +74,7 @@ class MainWindow(QMainWindow):
         self._refresh_explorer_tables()
         self._cdv_panel.reload_all()
         self._phc_panel.reload_all()
+        self._reference_panel.reload_all()
 
     def _build_menu(self) -> None:
         menubar = self.menuBar()
@@ -137,6 +144,7 @@ class MainWindow(QMainWindow):
         self._refresh_explorer_tables()
         self._cdv_panel.reload_all()
         self._phc_panel.reload_all()
+        self._reference_panel.reload_all()
 
     def _clear_database_file(self) -> None:
         self._settings.clear_database_path()
@@ -145,6 +153,7 @@ class MainWindow(QMainWindow):
         self._refresh_explorer_tables()
         self._cdv_panel.reload_all()
         self._phc_panel.reload_all()
+        self._reference_panel.reload_all()
 
     def _init_config_in_data_db(self) -> None:
         db_path = self._db_manager.db_path
